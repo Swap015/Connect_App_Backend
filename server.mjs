@@ -16,9 +16,7 @@ connectDB();
 
 
 //routes
-app.use('/', (req, res) => {
-    res.send("API is working properly ✅");
-});
+app.use(cookieParser());
 
 app.use('/api/user', userRoutes);
 

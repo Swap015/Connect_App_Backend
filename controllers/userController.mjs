@@ -4,6 +4,7 @@ import { generateAccessToken, generateRefreshToken }
     from '../utils/tokenUtil.mjs';
 
 
+
 export const registerUser = async (req, res) => {
     try {
         const { name, email, password, role, bio, location, avatar, companyName, positionAtCompany } = req.body;
@@ -91,7 +92,7 @@ export const getUser = async (req, res) => {
 export const logoutUser = async (req, res) => {
 
     try {
-        const user = await User.findById(req.user.id);
+        const user = await User.findById(req.user.userId);
         if (!user) {
             return res.status(401).json({ msg: "something's wrong" });
         }
@@ -100,8 +101,7 @@ export const logoutUser = async (req, res) => {
         res.clearCookie("accessToken", {
             httpOnly: true,
             secure: false,
-            sameSite: "lax",
-            maxAge: 15 * 60 * 1000,
+            sameSite: "lax"
         });
         res.status(200).json({ msg: "Logged Out" });
     }
