@@ -11,7 +11,7 @@ export const createPost = async (req, res) => {
         res.status(201).json({ msg: "Post created", post });
     }
     catch (err) {
-        res.status(400).json({ msg: "Post creation failed", err });
+        res.status(400).json({ msg: "Post creation failed", error: err.message });
     }
 };
 
@@ -25,13 +25,14 @@ export const editPost = async (req, res) => {
             return res.status(403).json({ msg: "Unauthorized User" });
         }
         const { content, file } = req.body;
-        post.content = content;
-        post.file = file;
+
+        if (content !== undefined) post.content = content;
+        if (file !== undefined) post.file = file;
         await post.save();
         res.status(200).json({ msg: "Post edited", post });
     }
     catch (err) {
-        res.status(400).json({ msg: "Post editing failed", err });
+        res.status(400).json({ msg: "Post editing failed", error: err.message });
     }
 }
 
@@ -44,12 +45,14 @@ export const deletePost = async (req, res) => {
         if (post.postedBy.toString() !== req.user.userId) {
             return res.status(403).json({ msg: "Unauthorized User" });
         }
-        await Post.deleteOne(req.params.id);
+        await Post.findByIdAndDelete(req.params.id);
         res.status(200).json({ msg: "Post deleted " });
     }
     catch (err) {
         res.status(400).json({ msg: "Post deletion failed" });
     }
 };
+
+
 
 

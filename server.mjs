@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import connectDB from './config/db.mjs';
 import userRoutes from './routes/userRoute.mjs';
+import postRoutes from './routes/postRoute.mjs';
 
 const app = express();
 const PORT = process.env.PORT || 7000;
@@ -19,6 +20,7 @@ connectDB();
 app.use(cookieParser());
 
 app.use('/api/user', userRoutes);
+app.use('/api/post', postRoutes);
 
 
 
