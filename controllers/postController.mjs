@@ -8,10 +8,38 @@ export const createPost = async (req, res) => {
         }
         const post = new Post({ content, file, postedBy: req.user.userId });
         await post.save();
-        res.status(201).json({ msg: "Post created", post });
+        res.status(201).json({ post });
     }
     catch (err) {
         res.status(400).json({ msg: "Post creation failed", error: err.message });
+    }
+};
+
+export const getUserPosts = async (req, res) => {
+    try {
+        const post = await Post.findById({ postedBy: req.params.userId }).sort({ createdAt: -1 });
+        if (!post) {
+            return res.status(404).json({ msg: "Post not found" })
+        }
+        res.status(200).json({ post });
+
+    }
+    catch (err) {
+        return res.status(400).json({ msg: "Post fetching failed" });
+    }
+};
+
+export const getAllPosts = async (req, res) => {
+    try {
+        const posts = await Post.find().sort({ createdAt: -1 });
+        if (!posts) {
+            return res.status(404).json({ msg: "Mo Post found" })
+        }
+        res.status(200).json({ posts });
+
+    }
+    catch (err) {
+        return res.status(400).json({ msg: "Post fetching failed" });
     }
 };
 
@@ -52,6 +80,8 @@ export const deletePost = async (req, res) => {
         res.status(400).json({ msg: "Post deletion failed" });
     }
 };
+
+
 
 
 
