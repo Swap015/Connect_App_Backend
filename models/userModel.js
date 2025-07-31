@@ -14,6 +14,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    gender: {
+        type: String,
+        enum: ["male", "female", "other"],
+        default: "male"
+    },
     role: {
         type: String,
         enum: ["user", "recruiter", "admin"],
@@ -24,17 +29,31 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: null,
     },
-    bio: {
+    experience: {
         type: String,
     },
     location: {
         type: String
     },
-    avatar: {
+    profileImage: {
         type: String
     },
+    education: [{
+        SSC: { type: String },
+        HSC: { type: String },
+        diploma: { type: String },
+        degree: { type: String }
+    }],
+    skills: [{
+        type: String
+    }],
     companyName: {
         type: String,
+
+    },
+    headline: {
+        type: String,
+        required: true
 
     },
     positionAtCompany: {
