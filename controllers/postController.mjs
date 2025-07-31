@@ -17,23 +17,25 @@ export const createPost = async (req, res) => {
 
 export const getUserPosts = async (req, res) => {
     try {
-        const post = await Post.findById({ postedBy: req.params.userId }).sort({ createdAt: -1 });
-        if (!post) {
-            return res.status(404).json({ msg: "Post not found" })
-        }
-        res.status(200).json({ post });
+        const posts = await Post.find({ postedBy: req.params.userId }).sort({ createdAt: -1 });
 
+        if (!posts || posts.length === 0) {
+            return res.status(404).json({ msg: "No posts found for this user" });
+        }
+
+        res.status(200).json({ posts });
     }
     catch (err) {
-        return res.status(400).json({ msg: "Post fetching failed" });
+        return res.status(400).json({ msg: "Post fetching failed", error: err.message });
     }
 };
+
 
 export const getAllPosts = async (req, res) => {
     try {
         const posts = await Post.find().sort({ createdAt: -1 });
-        if (!posts) {
-            return res.status(404).json({ msg: "Mo Post found" })
+        if (posts.length === 0) {
+            return res.status(404).json({ msg: "No Post found" })
         }
         res.status(200).json({ posts });
 
@@ -62,7 +64,40 @@ export const editPost = async (req, res) => {
     catch (err) {
         res.status(400).json({ msg: "Post editing failed", error: err.message });
     }
-}
+};
+
+export const getPostById = async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id)
+            .populate("postedBy", "name email")
+            .populate({
+                path: "comments",
+                populate: { path: "commentedBy", select: "name" }
+            });
+
+        if (!post) return res.status(404).json({ msg: "Post not found" });
+
+        res.status(200).json({ post });
+    } catch (err) {
+        res.status(400).json({ msg: "Failed to fetch post", error: err.message });
+    }
+};
+
+//Search Posts
+export const searchPosts = async (req, res) => {
+    try {
+        const { keyword } = req.query;
+
+        const posts = await Post.find({
+            content: { $regex: keyword, $options: "i" }
+        }).populate("postedBy", "name");
+
+        res.status(200).json({ posts });
+    } catch (err) {
+        res.status(400).json({ msg: "Search failed", error: err.message });
+    }
+};
+
 
 export const deletePost = async (req, res) => {
     try {
