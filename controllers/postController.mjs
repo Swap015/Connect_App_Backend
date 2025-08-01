@@ -47,7 +47,7 @@ export const getAllPosts = async (req, res) => {
 
 export const editPost = async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id);
+        const post = await Post.findById(req.params.postId);
         if (!post) {
             return res.status(404).json({ msg: "Post not found" });
         }
@@ -56,8 +56,8 @@ export const editPost = async (req, res) => {
         }
         const { content, file } = req.body;
 
-        if (content !== undefined) post.content = content;
-        if (file !== undefined) post.file = file;
+        if (content !== undefined) { post.content = content };
+        if (file !== undefined) { post.file = file };
         await post.save();
         res.status(200).json({ msg: "Post edited", post });
     }
@@ -68,7 +68,7 @@ export const editPost = async (req, res) => {
 
 export const getPostById = async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id)
+        const post = await Post.findById(req.params.postId)
             .populate("postedBy", "name email")
             .populate({
                 path: "comments",
@@ -101,14 +101,14 @@ export const searchPosts = async (req, res) => {
 
 export const deletePost = async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id);
+        const post = await Post.findById(req.params.postId);
         if (!post) {
             return res.status(404).json({ msg: "Post not found" });
         }
         if (post.postedBy.toString() !== req.user.userId) {
             return res.status(403).json({ msg: "Unauthorized User" });
         }
-        await Post.findByIdAndDelete(req.params.id);
+        await Post.findByIdAndDelete(req.params.postId);
         res.status(200).json({ msg: "Post deleted " });
     }
     catch (err) {
