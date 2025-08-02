@@ -12,7 +12,7 @@ export const addComment = async (req, res) => {
         const comment = new Comment({
             text,
             commentedBy: req.user.userId,
-            post: req.params.id,
+            post: req.params.postId,
         });
 
         await comment.save();

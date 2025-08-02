@@ -53,7 +53,7 @@ const userSchema = new mongoose.Schema({
     },
     headline: {
         type: String,
-        required: true
+
 
     },
     positionAtCompany: {

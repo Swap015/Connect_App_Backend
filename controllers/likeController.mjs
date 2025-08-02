@@ -2,7 +2,7 @@ import Post from "../models/postModel.js";
 
 export const likePost = async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id);
+        const post = await Post.findById(req.params.postId);
 
         if (!post) return res.status(404).json({ msg: "Post not found" });
 
