@@ -110,3 +110,6 @@ export const logoutUser = async (req, res) => {
 
     }
 };
+
+
+//Search user code remaining

@@ -1,4 +1,5 @@
 import User from "../models/userModel.js";
+import Notification from "../models/notificationModel.js";
 
 export const followUser = async (req, res) => {
     try {
@@ -14,13 +15,28 @@ export const followUser = async (req, res) => {
         if (!targeted_User) {
             return res.status(400).json({ msg: "User not found" });
         }
-        if (me.following.includes(targeted_User)) {
+        if (me.following.includes(targetUserId)) {
             return res.status(400).json({ msg: "Already following this User" });
         }
-        me.following.push(targeted_User);
-        targeted_User.followers.push(me);
+        me.following.push(targetUserId);
+        targeted_User.followers.push(myId);
         await me.save();
         await targeted_User.save();
+
+        // Notification
+        const existing = await Notification.findOne({
+            sender: myId,
+            receiver: targetUserId,
+            type: "follow"
+        });
+
+        if (!existing) {
+            await Notification.create({
+                sender: myId,
+                receiver: targetUserId,
+                type: "follow"
+            });
+        }
         res.status(200).json({ msg: `Folowed to ${targeted_User}` });
     }
     catch (err) {
@@ -39,11 +55,11 @@ export const unfollowUser = async (req, res) => {
         if (!targeted_User) {
             return res.status(400).json({ msg: "User not found" });
         }
-        if (!me.following.includes(targeted_User)) {
+        if (!me.following.includes(targetedUserId)) {
             return res.status(400).json({ msg: "You are not following this user" });
         }
-        me.following.pull(targeted_User);
-        targeted_User.followers.pull(me);
+        me.following.pull(targetedUserId);
+        targeted_User.followers.pull(myId);
         await me.save();
         res.status(200).json({ msg: " Unfollowed...... " });
     }

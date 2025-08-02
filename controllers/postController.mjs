@@ -8,6 +8,21 @@ export const createPost = async (req, res) => {
         }
         const post = new Post({ content, file, postedBy: req.user.userId });
         await post.save();
+
+        //Notification
+        const user = await User.findById(req.user.userId);
+        const followerIds = user.followers;
+
+        const notifications = followerIds.map(followerId => ({
+            sender: req.user.userId,
+            receiver: followerId,
+            type: "new_post",
+            post: post._id
+        }));
+
+        if (notifications.length > 0) {
+            await Notification.insertMany(notifications);
+        }
         res.status(201).json({ post });
     }
     catch (err) {
@@ -56,8 +71,8 @@ export const editPost = async (req, res) => {
         }
         const { content, file } = req.body;
 
-        if (content !== undefined) { post.content = content };
-        if (file !== undefined) { post.file = file };
+        if (content !== undefined) { post.content = content }
+        if (file !== undefined) { post.file = file }
         await post.save();
         res.status(200).json({ msg: "Post edited", post });
     }

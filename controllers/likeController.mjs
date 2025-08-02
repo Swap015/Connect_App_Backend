@@ -1,4 +1,5 @@
 import Post from "../models/postModel.js";
+import Notification from "../models/notificationModel.js";
 
 export const likePost = async (req, res) => {
     try {
@@ -12,6 +13,27 @@ export const likePost = async (req, res) => {
 
         if (index === -1) {
             post.likes.push(userId);
+
+            // Notification 
+            if (post.postedBy.toString() !== userId) {
+
+                const existing = await Notification.findOne({
+                    sender: userId,
+                    receiver: post.postedBy,
+                    type: "like",
+                    post: post._id
+                });
+
+                if (!existing) {
+                    await Notification.create({
+                        sender: userId,
+                        receiver: post.postedBy,
+                        type: "like",
+                        post: post._id,
+                    });
+                }
+
+            }
         } else {
             post.likes.splice(index, 1);
         }

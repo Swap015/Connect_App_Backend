@@ -19,6 +19,16 @@ export const addComment = async (req, res) => {
         post.comments.push(comment._id);
         await post.save();
 
+        //Notification
+        if (post.postedBy.toString() !== req.user.userId) {
+            await Notification.create({
+                sender: req.user.userId,
+                receiver: post.postedBy,
+                type: "comment",
+                post: post._id
+            });
+        }
+
         res.status(201).json({ msg: "Comment added", comment });
     } catch (err) {
         res.status(400).json({ msg: "Comment failed", error: err.message });

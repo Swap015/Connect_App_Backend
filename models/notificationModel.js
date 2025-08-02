@@ -2,7 +2,12 @@ import mongoose from 'mongoose';
 
 const notificationSchema = new mongoose.Schema({
 
-    type: String,
+    type: {
+        type: String,
+        enum: ["like", "comment", "follow", "newPost"],
+        required: true
+    }
+    ,
     sender: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
