@@ -6,6 +6,7 @@ dotenv.config();
 import connectDB from './config/db.mjs';
 import userRoutes from './routes/userRoute.mjs';
 import postRoutes from './routes/postRoute.mjs';
+import notificationRoutes from './routes/notificationRoute.mjs';
 
 const app = express();
 const PORT = process.env.PORT || 7000;
@@ -21,6 +22,7 @@ app.use(cookieParser());
 
 app.use('/api/user', userRoutes);
 app.use('/api/post', postRoutes);
+app.use('/api/notification', notificationRoutes);
 
 
 

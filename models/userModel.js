@@ -60,6 +60,24 @@ const userSchema = new mongoose.Schema({
         type: String,
 
     },
+    connections: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
+    connectionRequests: [{
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+    sentRequests: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
     following: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"

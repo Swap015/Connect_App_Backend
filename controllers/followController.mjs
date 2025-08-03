@@ -15,7 +15,7 @@ export const followUser = async (req, res) => {
         if (!targeted_User) {
             return res.status(400).json({ msg: "User not found" });
         }
-        if (me.following.includes(targetUserId)) {
+        if (me.following.some(id => id.toString() === targetUserId)) {
             return res.status(400).json({ msg: "Already following this User" });
         }
         me.following.push(targetUserId);
@@ -37,7 +37,7 @@ export const followUser = async (req, res) => {
                 type: "follow"
             });
         }
-        res.status(200).json({ msg: `Folowed to ${targeted_User}` });
+        res.status(200).json({ msg: `Folowed to ${targeted_User.name}` });
     }
     catch (err) {
         res.status(400).json({ msg: "Failed to follow user", err });
@@ -55,12 +55,13 @@ export const unfollowUser = async (req, res) => {
         if (!targeted_User) {
             return res.status(400).json({ msg: "User not found" });
         }
-        if (!me.following.includes(targetedUserId)) {
+        if (!me.following.some(id => id.toString() === targetedUserId)) {
             return res.status(400).json({ msg: "You are not following this user" });
         }
         me.following.pull(targetedUserId);
         targeted_User.followers.pull(myId);
         await me.save();
+        await targeted_User.save();
         res.status(200).json({ msg: " Unfollowed...... " });
     }
     catch (err) {
