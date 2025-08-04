@@ -15,8 +15,8 @@ router.post('/refresh', refreshAccessToken);
 
 // Follow/unfollow
 
-router.post('/follow/:userId', verifyToken, followUser);
-router.post('/unfollow/:userId', verifyToken, unfollowUser);
+router.post('/follow/:id', verifyToken, followUser);
+router.post('/unfollow/:id', verifyToken, unfollowUser);
 
 
 export default router;

@@ -11,7 +11,7 @@ export const followUser = async (req, res) => {
         }
         const me = await User.findById(myId);
         const targeted_User = await User.findById(targetUserId);
-
+        console.log("user ki id hai :" + targeted_User);
         if (!targeted_User) {
             return res.status(400).json({ msg: "User not found" });
         }
@@ -37,7 +37,7 @@ export const followUser = async (req, res) => {
                 type: "follow"
             });
         }
-        res.status(200).json({ msg: `Folowed to ${targeted_User.name}` });
+        res.status(200).json({ msg: `Followed to ${targeted_User.name}` });
     }
     catch (err) {
         res.status(400).json({ msg: "Failed to follow user", err });

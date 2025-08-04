@@ -34,6 +34,7 @@ export const markOneAsRead = async (req, res) => {
             { $set: { read: true } },
             { new: true }
         );
+        console.log("Logged-in user:", req.user.userId);
 
         if (!notification) {
             return res.status(404).json({ msg: "Notification not found" });
