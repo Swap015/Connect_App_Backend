@@ -3,8 +3,6 @@ import bcrypt from 'bcrypt';
 import { generateAccessToken, generateRefreshToken }
     from '../utils/tokenUtil.mjs';
 
-
-
 export const registerUser = async (req, res) => {
     try {
         const { name, email, password, role, bio, location, avatar, companyName, positionAtCompany } = req.body;
@@ -110,6 +108,5 @@ export const logoutUser = async (req, res) => {
 
     }
 };
-
 
 //Search user code remaining

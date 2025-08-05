@@ -2,11 +2,18 @@ import Post from "../models/postModel.js";
 
 export const createPost = async (req, res) => {
     try {
-        const { content, file } = req.body;
-        if (!content || !file) {
-            return res.status(400).json({ msg: "At least one field is required" });
+        const { content } = req.body;
+        const images = req.files;
+        if (!content && (!images || images.length === 0)) {
+            return res.status(400).json({ msg: "At least content or one image is required" });
         }
-        const post = new Post({ content, file, postedBy: req.user.userId });
+        const imageUrls = images ? images.map(file => file.path) : [];
+
+        const post = new Post({
+            content,
+            file: imageUrls,
+            postedBy: req.user.userId
+        });
         await post.save();
 
         //Notification
@@ -23,7 +30,7 @@ export const createPost = async (req, res) => {
         if (notifications.length > 0) {
             await Notification.insertMany(notifications);
         }
-        res.status(201).json({ post });
+        res.status(201).json({ msg: 'Post created successfully', post });
     }
     catch (err) {
         res.status(400).json({ msg: "Post creation failed", error: err.message });

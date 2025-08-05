@@ -13,6 +13,9 @@ router.get('/getUser/:userId', verifyToken, getUser);
 router.post('/logout', verifyToken, logoutUser);
 router.post('/refresh', refreshAccessToken);
 
+// Profile picture
+router.post('/updateProfilePic', verifyToken, uploadProfile.single('profileImage'), uploadProfilePic);
+
 // Follow/unfollow
 
 router.post('/follow/:id', verifyToken, followUser);

@@ -6,11 +6,12 @@ import verifyToken from '../middlewares/authMiddleware.mjs';
 
 const router = express.Router();
 
-router.post('/createPost', verifyToken, createPost);
+router.post('/createPost', verifyToken, uploadPost.array('file', 5), createPost);
 router.patch('/editPost/:postId', verifyToken, editPost);
 router.delete('/deletePost/:postId', verifyToken, deletePost);
 router.get('/userPosts/:userId', verifyToken, getUserPosts);
 router.get('/allPosts', verifyToken, getAllPosts);
+
 
 //Routes of comments on the post 
 router.post('/addComment/:postId', verifyToken, addComment);
@@ -21,6 +22,8 @@ router.get('/getSingleComment/:commentId', verifyToken, getSingleComment);
 
 //Route for like
 router.patch('/likePost/:postId', verifyToken, likePost);
+
+
 
 
 export default router;

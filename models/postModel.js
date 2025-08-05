@@ -6,7 +6,8 @@ const postSchema = new mongoose.Schema({
         trim: true
     },
     file: [{
-        type: String
+        type: [String],
+        default: []
     }],
     postedBy: {
         type: mongoose.Schema.Types.ObjectId,

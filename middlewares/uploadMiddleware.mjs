@@ -1,0 +1,6 @@
+
+import multer from 'multer';
+import { profileStorage, postStorage } from '../config/cloudinaryConfig.mjs';
+
+export const uploadProfile = multer({ storage: profileStorage });
+export const uploadPost = multer({ storage: postStorage });
