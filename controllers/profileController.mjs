@@ -24,4 +24,57 @@ export const uploadProfilePic = async (req, res) => {
     }
 };
 
+export const updateProfilePic = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        if (!req.file || !req.file.path) {
+            return res.status(400).json({ msg: 'New image is required' });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        // Delete old image
+        if (user.profileImage) {
+            const publicId = extractPublicId(user.profileImage);
+            await cloudinary.uploader.destroy(publicId);
+        }
+
+        user.profileImage = req.file.path;
+        await user.save();
+
+        res.status(200).json({
+            msg: 'Profile picture updated successfully',
+            profileImage: user.profileImage,
+        });
+    } catch (err) {
+        res.status(500).json({ msg: 'Failed to update profile picture', error: err.message });
+    }
+};
+
+
+export const deleteProfilePic = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        const user = await User.findById(userId);
+        if (!user || !user.profileImage) {
+            return res.status(400).json({ msg: 'No profile picture to delete' });
+        }
+
+        const publicId = extractPublicId(user.profileImage);
+        await cloudinary.uploader.destroy(publicId);
+
+        user.profileImage = null;
+        await user.save();
+
+        res.status(200).json({ msg: 'Profile picture deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ msg: 'Failed to delete profile picture', error: err.message });
+    }
+};
+
 
