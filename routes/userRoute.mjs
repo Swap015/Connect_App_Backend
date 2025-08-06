@@ -4,6 +4,8 @@ import { refreshAccessToken } from '../controllers/refreshAccessController.mjs';
 import verifyToken from '../middlewares/authMiddleware.mjs';
 import { followUser, unfollowUser } from '../controllers/followController.mjs';
 
+import searchUsers from "../controllers/userController.mjs";
+
 const router = express.Router();
 
 router.post('/register', registerUser);
@@ -20,6 +22,10 @@ router.post('/updateProfilePic', verifyToken, uploadProfile.single('profileImage
 
 router.post('/follow/:id', verifyToken, followUser);
 router.post('/unfollow/:id', verifyToken, unfollowUser);
+
+//search users
+router.get("/search", verifyToken, searchUsers);
+
 
 
 export default router;

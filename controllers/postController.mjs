@@ -112,7 +112,7 @@ export const searchPosts = async (req, res) => {
 
         const posts = await Post.find({
             content: { $regex: keyword, $options: "i" }
-        }).populate("postedBy", "name");
+        }).populate("postedBy", "name profileImage");
 
         res.status(200).json({ posts });
     } catch (err) {

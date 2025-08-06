@@ -1,5 +1,5 @@
 import express from 'express';
-import { createPost, editPost, deletePost, getUserPosts, getAllPosts } from '../controllers/postController.mjs';
+import { createPost, editPost, deletePost, getUserPosts, getAllPosts, searchPosts } from '../controllers/postController.mjs';
 import { addComment, deleteComment, editComment, getSingleComment, getPostComments } from '../controllers/commentController.mjs';
 import { likePost } from '../controllers/likeController.mjs';
 import verifyToken from '../middlewares/authMiddleware.mjs';
@@ -23,7 +23,7 @@ router.get('/getSingleComment/:commentId', verifyToken, getSingleComment);
 //Route for like
 router.patch('/likePost/:postId', verifyToken, likePost);
 
-
-
+//Search posts
+router.get("/sesrch", verifyToken, searchPosts);
 
 export default router;

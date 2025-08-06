@@ -2,31 +2,38 @@ import User from '../models/userModel.js';
 import bcrypt from 'bcrypt';
 import { generateAccessToken, generateRefreshToken }
     from '../utils/tokenUtil.mjs';
+import defaultProfilePics from "../config/defaultprofilePics.js";
 
 export const registerUser = async (req, res) => {
     try {
-        const { name, email, password, role, bio, location, avatar, companyName, positionAtCompany } = req.body;
+        const { name, email, password, role, location, companyName, gender, education, skills, headline, positionAtCompany } = req.body;
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ msg: "User already exists" });
         }
-        if (!name || !email || !password || !role) {
+        if (!name || !email || !password || !role || !gender) {
             return res.status(400).json({ msg: "All fields are required" });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const userData = {
+
+        //Set default profile pic
+        const profileImage = defaultProfilePics[gender.toLowerCase()];
+
+        const user = new User({
             name,
             email,
             password: hashedPassword,
             role,
-            bio,
             location,
-            avatar,
             companyName,
-            positionAtCompany
-        }
-        const user = new User(userData);
+            positionAtCompany,
+            profileImage,
+            education,
+            skills,
+            headline,
+        });
+
         await user.save();
         res.status(201).json({ msg: "User Registered" });
     }
@@ -109,4 +116,17 @@ export const logoutUser = async (req, res) => {
     }
 };
 
-//Search user code remaining
+//Search user
+
+export const searchUsers = async (req, res) => {
+    try {
+        const { keyword } = req.query;
+        const users = await User.find({
+            name: { $regex: keyword, $options: "i" }
+        }).select("-password");
+
+        res.status(200).json({ users });
+    } catch (err) {
+        res.status(400).json({ msg: "User search failed", error: err.message });
+    }
+};
