@@ -3,7 +3,7 @@ import { createPost, editPost, deletePost, getUserPosts, getAllPosts, searchPost
 import { addComment, deleteComment, editComment, getSingleComment, getPostComments } from '../controllers/commentController.mjs';
 import { likePost } from '../controllers/likeController.mjs';
 import verifyToken from '../middlewares/authMiddleware.mjs';
-
+import { uploadPost } from '../middlewares/uploadMiddleware.mjs';
 const router = express.Router();
 
 router.post('/createPost', verifyToken, uploadPost.array('file', 5), createPost);

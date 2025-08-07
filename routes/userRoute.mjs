@@ -3,9 +3,9 @@ import { registerUser, loginUser, getAllUsers, getUser, logoutUser } from '../co
 import { refreshAccessToken } from '../controllers/refreshAccessController.mjs';
 import verifyToken from '../middlewares/authMiddleware.mjs';
 import { followUser, unfollowUser } from '../controllers/followController.mjs';
-
-import searchUsers from "../controllers/userController.mjs";
-
+import { uploadProfilePic } from '../controllers/profileController.mjs';
+import { searchUsers } from "../controllers/userController.mjs";
+import { uploadProfile } from '../middlewares/uploadMiddleware.mjs';
 const router = express.Router();
 
 router.post('/register', registerUser);

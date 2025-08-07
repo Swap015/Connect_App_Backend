@@ -16,11 +16,11 @@ export const sendConnectionRequest = async (req, res) => {
     }
 
 
-    if (targetUser.connection_Requests.some(r => r.user.toString() === myId)) {
+    if (targetUser.connectionRequests.some(r => r.user.toString() === myId)) {
         return res.status(400).json({ msg: "Request already sent" });
     }
 
-    targetUser.connection_Requests.push({ user: myId });
+    targetUser.connectionRequests.push({ user: myId });
     me.sentRequests.push(targetId);
 
     await targetUser.save();
@@ -39,12 +39,13 @@ export const acceptConnectionRequest = async (req, res) => {
 
     if (!sender) return res.status(404).json({ msg: "Sender not found" });
 
+    if (!me.connectionRequests.some(req => req.user.toString() === senderId)) {
+        return res.status(400).json({ msg: "No connection request found from this user" });
+    }
 
-    me.connection_Requests = me.connection_Requests.filter(req => req.user.toString() !== senderId);
-
-
-    sender.sentRequests = sender.sentRequests.filter(id => id.toString() !== myId);
-
+    if (me.connections.includes(senderId)) {
+        return res.status(400).json({ msg: "You are already connected with this user" });
+    }
 
     me.connections.push(senderId);
     sender.connections.push(myId);
@@ -65,8 +66,9 @@ export const rejectConnectionRequest = async (req, res) => {
 
     if (!sender) return res.status(404).json({ msg: "Sender not found" });
 
-    me.connection_Requests = me.connection_Requests.filter(req => req.user.toString() !== senderId);
-    sender.sentRequests = sender.sentRequests.filter(id => id.toString() !== myId);
+    if (!me.connectionRequests.some(req => req.user.toString() === senderId)) {
+        return res.status(400).json({ msg: "No connection request from this user" });
+    }
 
     await me.save();
     await sender.save();
@@ -84,9 +86,9 @@ export const cancelConnectionRequest = async (req, res) => {
 
     if (!targetUser) return res.status(404).json({ msg: "Target user not found" });
 
-    me.sentRequests = me.sentRequests.filter(id => id.toString() !== targetId);
-    targetUser.connection_Requests = targetUser.connection_Requests.filter(req => req.user.toString() !== myId);
-
+    if (!me.sentRequests.includes(targetId)) {
+        return res.status(400).json({ msg: "No connection request sent to this user" });
+    }
     await me.save();
     await targetUser.save();
 
@@ -103,8 +105,9 @@ export const removeConnection = async (req, res) => {
 
     if (!otherUser) return res.status(404).json({ msg: "User not found" });
 
-    me.connections = me.connections.filter(id => id.toString() !== otherUserId);
-    otherUser.connections = otherUser.connections.filter(id => id.toString() !== myId);
+    if (!me.connections.includes(otherUserId)) {
+        return res.status(400).json({ msg: "You are not connected with this user" });
+    }
 
     await me.save();
     await otherUser.save();
@@ -122,9 +125,9 @@ export const getMyConnections = async (req, res) => {
 
 export const getReceivedRequests = async (req, res) => {
     const me = await User.findById(req.user.userId)
-        .populate("connection_Requests.user", "name profileImage");
+        .populate("connectionRequests.user", "name profileImage");
 
-    res.status(200).json({ requests: me.connection_Requests });
+    res.status(200).json({ requests: me.connectionRequests });
 };
 
 
