@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
     location: {
         type: String
     },
+    savedPosts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Post"
+    }],
     profileImage: {
         type: String,
         default: ''
@@ -54,7 +58,6 @@ const userSchema = new mongoose.Schema({
     },
     headline: {
         type: String,
-
 
     },
     positionAtCompany: {
