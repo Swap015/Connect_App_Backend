@@ -4,10 +4,9 @@ const notificationSchema = new mongoose.Schema({
 
     type: {
         type: String,
-        enum: ["like", "comment", "follow", "newPost"],
+        enum: ["like", "comment", "follow", "newPost", "profileVisit"],
         required: true
-    }
-    ,
+    },
     sender: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
@@ -28,6 +27,7 @@ const notificationSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
+
 
 })
 

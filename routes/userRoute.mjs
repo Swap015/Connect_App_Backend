@@ -7,6 +7,10 @@ import { uploadProfilePic } from '../controllers/profileController.mjs';
 import { searchUsers } from "../controllers/userController.mjs";
 import { uploadProfile } from '../middlewares/uploadMiddleware.mjs';
 const router = express.Router();
+import { visitProfile } from '../controllers/profileVisitController.mjs';
+
+
+//routes
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
@@ -24,8 +28,10 @@ router.post('/follow/:id', verifyToken, followUser);
 router.post('/unfollow/:id', verifyToken, unfollowUser);
 
 //search users
-router.get("/search", verifyToken, searchUsers);
+router.get('/search', verifyToken, searchUsers);
 
+//profile visits
+router.put('profileVisit/:id', verifyToken, visitProfile);
 
 
 export default router;
