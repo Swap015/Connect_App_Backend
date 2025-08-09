@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 const commentSchema = new mongoose.Schema({
     text: {
         type: String,
-        trim: true
+        trim: true,
+        required: true
     },
     commentedBy: {
         type: mongoose.Schema.Types.ObjectId,
@@ -16,7 +17,7 @@ const commentSchema = new mongoose.Schema({
     },
     parentComment: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Comment", 
+        ref: "Comment",
         default: null
     },
     mentions: [{

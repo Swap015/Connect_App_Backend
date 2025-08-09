@@ -1,6 +1,9 @@
+import cloudinary from '../config/cloudinaryConfig.mjs';
+import { extractPublicId } from '../utils/extractPublicId.mjs';
 import Post from "../models/postModel.js";
 import Notification from "../models/notificationModel.js";
 import User from "../models/userModel.js";
+
 
 
 
@@ -80,10 +83,24 @@ export const editPost = async (req, res) => {
         if (post.postedBy.toString() !== req.user.userId) {
             return res.status(403).json({ msg: "Unauthorized User" });
         }
-        const { content, file } = req.body;
+        const { content } = req.body;
+        const newFiles = req.files;
 
-        if (content !== undefined) { post.content = content }
-        if (file !== undefined) { post.file = file }
+        //delete old files from Cloudinary
+        if (newFiles && newFiles.length > 0) {
+            if (Array.isArray(post.file) && post.file.length > 0) {
+                for (const img of post.file) {
+                    const publicId = extractPublicId(img);
+                    await cloudinary.uploader.destroy(publicId);
+                }
+            }
+            // replace with new uploaded file URLs
+            post.file = newFiles.map(file => file.path);
+        }
+
+        if (content !== undefined) {
+            post.content = content
+        }
         await post.save();
         res.status(200).json({ msg: "Post edited", post });
     }
@@ -135,8 +152,14 @@ export const deletePost = async (req, res) => {
             return res.status(403).json({ msg: "Unauthorized User" });
         }
 
+        // Delete images from Cloudinary
+        if (Array.isArray(post.file) && post.file.length > 0) {
+            for (const img of post.file) {
+                const publicId = extractPublicId(img);
+                await cloudinary.uploader.destroy(publicId);
+            }
+        }
 
-        
         await Post.findByIdAndDelete(req.params.postId);
         res.status(200).json({ msg: "Post deleted " });
     }

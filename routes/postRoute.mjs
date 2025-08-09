@@ -14,7 +14,7 @@ const router = express.Router();
 //Routes of posts
 
 router.post('/createPost', verifyToken, uploadPost.array('file', 5), createPost);
-router.patch('/editPost/:postId', verifyToken, editPost);
+router.patch('/editPost/:postId', uploadPost.array('file', 5), verifyToken, editPost);
 router.delete('/deletePost/:postId', verifyToken, deletePost);
 router.get('/userPosts/:userId', verifyToken, getUserPosts);
 router.get('/allPosts', verifyToken, getAllPosts);

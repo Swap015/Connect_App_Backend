@@ -1,5 +1,5 @@
 import User from '../models/userModel.js';
-import { v2 as cloudinary } from 'cloudinary';
+import cloudinary from '../config/cloudinaryConfig.mjs';
 import { extractPublicId } from '../utils/extractPublicId.mjs';
 
 

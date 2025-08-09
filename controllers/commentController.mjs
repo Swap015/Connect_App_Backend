@@ -6,7 +6,7 @@ import Notification from "../models/notificationModel.js";
 
 export const addComment = async (req, res) => {
     try {
-        const { text, mentions } = req.body; 
+        const { text, mentions, parentComment } = req.body;
         if (!text) return res.status(400).json({ msg: "Comment cannot be empty" });
 
         const post = await Post.findById(req.params.postId);
@@ -16,7 +16,8 @@ export const addComment = async (req, res) => {
             text,
             commentedBy: req.user.userId,
             post: req.params.postId,
-            mentions 
+            mentions,
+            parentComment: parentComment || null
         });
 
         await comment.save();
@@ -36,7 +37,7 @@ export const addComment = async (req, res) => {
         // Notify mentioned users
         if (mentions && mentions.length > 0) {
             const notifications = mentions
-                .filter(id => id.toString() !== req.user.userId) 
+                .filter(id => id.toString() !== req.user.userId && id.toString() !== post.postedBy.toString())
                 .map(userId => ({
                     sender: req.user.userId,
                     receiver: userId,
@@ -53,41 +54,6 @@ export const addComment = async (req, res) => {
     }
 };
 
-
-// export const addComment = async (req, res) => {
-//     try {
-//         const { text } = req.body;
-//         if (!text) return res.status(400).json({ msg: "Comment cannot be empty" });
-
-//         const post = await Post.findById(req.params.postId);
-//         if (!post) return res.status(404).json({ msg: "Post not found" });
-
-//         const comment = new Comment({
-//             text,
-//             commentedBy: req.user.userId,
-//             post: req.params.postId,
-//         });
-
-//         await comment.save();
-//         post.comments.push(comment._id);
-//         await post.save();
-
-//         //Notification
-//         if (post.postedBy.toString() !== req.user.userId) {
-//             await Notification.create({
-//                 sender: req.user.userId,
-//                 receiver: post.postedBy,
-//                 type: "comment",
-//                 post: post._id
-//             });
-//         }
-
-//         res.status(201).json({ msg: "Comment added", comment });
-//     } catch (err) {
-//         res.status(400).json({ msg: "Comment failed", error: err.message });
-//     }
-// };
-
 export const deleteComment = async (req, res) => {
     try {
         const { postId, commentId } = req.params;
@@ -100,6 +66,8 @@ export const deleteComment = async (req, res) => {
         }
 
         await Comment.findByIdAndDelete(commentId);
+        await Comment.deleteMany({ parentComment: commentId });
+
         await Post.findByIdAndUpdate(postId, { $pull: { comments: commentId } });
 
         res.status(200).json({ msg: "Comment deleted" });
@@ -118,6 +86,10 @@ export const editComment = async (req, res) => {
         const comment = await Comment.findById(commentId);
         if (!comment) { return res.status(400).json({ msg: "Comment not found" }) };
 
+        if (comment.commentedBy.toString() !== req.user.userId) {
+            return res.status(403).json({ msg: "Unauthorized" });
+        }
+
         const { text } = req.body;
         if (text) { comment.text = text };
         await comment.save();
@@ -131,7 +103,10 @@ export const editComment = async (req, res) => {
 export const getPostComments = async (req, res) => {
     try {
         const { postId } = req.params;
-        const comments = await Comment.find({ post: postId }).populate("commentedBy", "name").sort({ createdAt: -1 });
+        const comments = await Comment.find({ post: postId })
+            .populate("commentedBy", "name")
+            .populate("mentions", "name")
+            .sort({ createdAt: -1 });
         res.status(200).json({ comments });
 
     }
