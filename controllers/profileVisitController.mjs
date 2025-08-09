@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import Notification from "../models/notificationModel.js";
 
+
 export const visitProfile = async (req, res) => {
     try {
         const visitorId = req.user.userId;
@@ -15,14 +16,15 @@ export const visitProfile = async (req, res) => {
             return res.status(404).json({ msg: "Profile not found" });
         }
 
-        const alreadyVisited = profileOwner.profileVisits.some(
+        const alreadyVisited = profileToVisitId.profileVisits.some(
             visit => visit.user.toString() === visitorId
         );
 
         if (!alreadyVisited) {
             // Add visit
-            profileOwner.profileVisits.push({
-                user: visitorId
+            profileToVisit.profileVisits.push({
+                user: visitorId,
+                visitedAt: new Date()
             });
 
             // Create notification
@@ -32,7 +34,7 @@ export const visitProfile = async (req, res) => {
                 receiver: profileToVisitId
             });
 
-            await profileOwner.save();
+            await profileToVisit.save();
         }
 
         res.status(200).json({ msg: "Profile visit tracked" });

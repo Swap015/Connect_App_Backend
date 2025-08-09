@@ -1,5 +1,7 @@
-
 import User from '../models/userModel.js';
+import { v2 as cloudinary } from 'cloudinary';
+import { extractPublicId } from '../utils/extractPublicId.mjs';
+
 
 export const uploadProfilePic = async (req, res) => {
     try {
@@ -40,7 +42,7 @@ export const updateProfilePic = async (req, res) => {
         // Delete old image
         if (user.profileImage) {
             const publicId = extractPublicId(user.profileImage);
-            await cloudinary.uploader.destroy(publicId);
+            if (publicId) await cloudinary.uploader.destroy(publicId);
         }
 
         user.profileImage = req.file.path;
@@ -66,7 +68,7 @@ export const deleteProfilePic = async (req, res) => {
         }
 
         const publicId = extractPublicId(user.profileImage);
-        await cloudinary.uploader.destroy(publicId);
+        if (publicId) await cloudinary.uploader.destroy(publicId);
 
         user.profileImage = null;
         await user.save();

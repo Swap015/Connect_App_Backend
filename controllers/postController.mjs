@@ -1,4 +1,8 @@
 import Post from "../models/postModel.js";
+import Notification from "../models/notificationModel.js";
+import User from "../models/userModel.js";
+
+
 
 export const createPost = async (req, res) => {
     try {
@@ -108,7 +112,7 @@ export const getPostById = async (req, res) => {
 //Search Posts
 export const searchPosts = async (req, res) => {
     try {
-        const { keyword } = req.query;
+        const keyword = req.query.keyword?.trim() || "";
 
         const posts = await Post.find({
             content: { $regex: keyword, $options: "i" }
@@ -130,6 +134,9 @@ export const deletePost = async (req, res) => {
         if (post.postedBy.toString() !== req.user.userId) {
             return res.status(403).json({ msg: "Unauthorized User" });
         }
+
+
+        
         await Post.findByIdAndDelete(req.params.postId);
         res.status(200).json({ msg: "Post deleted " });
     }

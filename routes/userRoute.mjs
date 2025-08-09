@@ -11,7 +11,6 @@ import { visitProfile } from '../controllers/profileVisitController.mjs';
 
 
 //routes
-
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/getUsers', verifyToken, getAllUsers);

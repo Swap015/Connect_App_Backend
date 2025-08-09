@@ -1,6 +1,6 @@
 
 export function extractPublicId(url) {
-    const parts = url.split('/');
-    const filename = parts[parts.length - 1];
-    return filename.split('.')[0];
-};
+    const regex = /\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+$/;
+    const match = url.match(regex);
+    return match ? match[1] : null; 
+}

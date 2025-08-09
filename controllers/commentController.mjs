@@ -1,9 +1,12 @@
 import Post from "../models/postModel.js";
 import Comment from "../models/commentModel.js";
+import Notification from "../models/notificationModel.js";
+
+
 
 export const addComment = async (req, res) => {
     try {
-        const { text } = req.body;
+        const { text, mentions } = req.body; 
         if (!text) return res.status(400).json({ msg: "Comment cannot be empty" });
 
         const post = await Post.findById(req.params.postId);
@@ -13,13 +16,14 @@ export const addComment = async (req, res) => {
             text,
             commentedBy: req.user.userId,
             post: req.params.postId,
+            mentions 
         });
 
         await comment.save();
         post.comments.push(comment._id);
         await post.save();
 
-        //Notification
+        // Notify post owner if not commenter
         if (post.postedBy.toString() !== req.user.userId) {
             await Notification.create({
                 sender: req.user.userId,
@@ -29,11 +33,60 @@ export const addComment = async (req, res) => {
             });
         }
 
+        // Notify mentioned users
+        if (mentions && mentions.length > 0) {
+            const notifications = mentions
+                .filter(id => id.toString() !== req.user.userId) 
+                .map(userId => ({
+                    sender: req.user.userId,
+                    receiver: userId,
+                    type: "mention",
+                    post: post._id
+                }));
+
+            await Notification.insertMany(notifications);
+        }
+
         res.status(201).json({ msg: "Comment added", comment });
     } catch (err) {
         res.status(400).json({ msg: "Comment failed", error: err.message });
     }
 };
+
+
+// export const addComment = async (req, res) => {
+//     try {
+//         const { text } = req.body;
+//         if (!text) return res.status(400).json({ msg: "Comment cannot be empty" });
+
+//         const post = await Post.findById(req.params.postId);
+//         if (!post) return res.status(404).json({ msg: "Post not found" });
+
+//         const comment = new Comment({
+//             text,
+//             commentedBy: req.user.userId,
+//             post: req.params.postId,
+//         });
+
+//         await comment.save();
+//         post.comments.push(comment._id);
+//         await post.save();
+
+//         //Notification
+//         if (post.postedBy.toString() !== req.user.userId) {
+//             await Notification.create({
+//                 sender: req.user.userId,
+//                 receiver: post.postedBy,
+//                 type: "comment",
+//                 post: post._id
+//             });
+//         }
+
+//         res.status(201).json({ msg: "Comment added", comment });
+//     } catch (err) {
+//         res.status(400).json({ msg: "Comment failed", error: err.message });
+//     }
+// };
 
 export const deleteComment = async (req, res) => {
     try {
