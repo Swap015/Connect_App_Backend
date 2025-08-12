@@ -1,10 +1,21 @@
 import Application from '../models/jobApplicationModel.js';
 import Job from '../models/jobModel.js';
 
+//for Applicants
+
 export const applyForJob = async (req, res) => {
     try {
         const { jobId, coverLetter } = req.body;
         const userId = req.user.userId;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+
+        if (user.role !== "user") {
+            return res.status(403).json({ msg: "Only users can apply for jobs" });
+        }
 
         const job = await Job.findById(jobId);
         if (!job) {
@@ -15,9 +26,14 @@ export const applyForJob = async (req, res) => {
             return res.status(400).json({ msg: "You cannot apply to your own job" });
         }
 
-        const application = await Application.create({
+        if (!req.file || !req.file.path) {
+            return res.status(400).json({ msg: "Resume file is required" });
+        }
+
+        const application = new Application({
             job: jobId,
             applicant: userId,
+            resumeUrl: req.file.path,
             coverLetter
         });
 
@@ -34,6 +50,55 @@ export const applyForJob = async (req, res) => {
     }
 };
 
+
+export const myApplications = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const applications = await Application.find({ applicant: userId })
+            .populate("job", "title companyName location")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({ applications });
+
+    } catch (err) {
+        res.status(500).json({ msg: "Failed to fetch applications", error: err.message });
+    }
+};
+
+
+
+export const deleteJobApplication = async (req, res) => {
+    try {
+        const { applicationId } = req.params;
+        const userId = req.user.userId;
+
+        const application = await Application.findById(applicationId);
+        if (!application) {
+            return res.status(404).json({ msg: "Application not found" });
+        }
+
+        // Only the applicant can delete
+        if (application.applicant.toString() !== userId) {
+            return res.status(403).json({ msg: "Unauthorized" });
+        }
+
+        await application.deleteOne();
+
+        // Reduce applicant count after deleting
+        const job = await Job.findById(application.job);
+        if (job) {
+            job.applicantsCount = Math.max(0, job.applicantsCount - 1);
+            await job.save();
+        }
+
+        res.status(200).json({ msg: "Application deleted successfully" });
+
+    } catch (err) {
+        res.status(500).json({ msg: "Failed to delete application", error: err.message });
+    }
+};
+
+//for Recruiter 
 
 export const viewApplicants = async (req, res) => {
     try {
@@ -60,7 +125,6 @@ export const viewApplicants = async (req, res) => {
     }
 };
 
-
 export const updateApplicationStatus = async (req, res) => {
     try {
         const { applicationId } = req.params;
@@ -86,17 +150,34 @@ export const updateApplicationStatus = async (req, res) => {
     }
 };
 
-
-export const myApplications = async (req, res) => {
+export const editJobApplication = async (req, res) => {
     try {
+        const { applicationId } = req.params;
+        const updates = req.body;
         const userId = req.user.userId;
-        const applications = await Application.find({ applicant: userId })
-            .populate("job", "title companyName location")
-            .sort({ createdAt: -1 });
 
-        res.status(200).json({ applications });
+        const application = await Application.findById(applicationId);
+        if (!application) {
+            return res.status(404).json({ msg: "Application not found" });
+        }
+
+        if (application.applicant.toString() !== userId) {
+            return res.status(403).json({ msg: "Unauthorized" });
+        }
+
+        Object.keys(updates).forEach(key => {
+            application[key] = updates[key];
+        });
+
+        await application.save();
+        res.status(200).json({ msg: "Application updated successfully", application });
 
     } catch (err) {
-        res.status(500).json({ msg: "Failed to fetch applications", error: err.message });
+        res.status(500).json({ msg: "Failed to update application", error: err.message });
     }
 };
+
+
+
+
+
