@@ -9,6 +9,7 @@ import postRoutes from './routes/postRoute.mjs';
 import notificationRoutes from './routes/notificationRoute.mjs';
 import connectionRoutes from './routes/connectionRoutes.mjs'
 import searchRoute from './routes/searchRoute.mjs';
+import jobRoute from './routes/jobRoutes.mjs';
 
 const app = express();
 const PORT = process.env.PORT || 7000;
@@ -27,6 +28,7 @@ app.use('/api/post', postRoutes);
 app.use('/api/notification', notificationRoutes);
 app.use('/api/connection', connectionRoutes);
 app.use('/api/global', searchRoute);
+app.use('/api/job', jobRoute);
 
 
 
