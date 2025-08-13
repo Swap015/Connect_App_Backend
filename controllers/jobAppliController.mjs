@@ -26,6 +26,11 @@ export const applyForJob = async (req, res) => {
             return res.status(400).json({ msg: "You cannot apply to your own job" });
         }
 
+        const existingApplication = await Application.findOne({ job: jobId, applicant: userId });
+        if (existingApplication) {
+            return res.status(400).json({ msg: "You have already applied for this job" });
+        }
+
         if (!req.file || !req.file.path) {
             return res.status(400).json({ msg: "Resume file is required" });
         }
@@ -39,6 +44,8 @@ export const applyForJob = async (req, res) => {
 
         job.applicantsCount += 1;
         await job.save();
+        await application.save();
+
 
         res.status(201).json({ msg: "Applied successfully", application });
 
@@ -66,7 +73,6 @@ export const myApplications = async (req, res) => {
 };
 
 
-
 export const deleteJobApplication = async (req, res) => {
     try {
         const { applicationId } = req.params;
@@ -77,7 +83,7 @@ export const deleteJobApplication = async (req, res) => {
             return res.status(404).json({ msg: "Application not found" });
         }
 
-        // Only the applicant can delete
+      
         if (application.applicant.toString() !== userId) {
             return res.status(403).json({ msg: "Unauthorized" });
         }
@@ -95,6 +101,37 @@ export const deleteJobApplication = async (req, res) => {
 
     } catch (err) {
         res.status(500).json({ msg: "Failed to delete application", error: err.message });
+    }
+};
+
+export const editJobApplication = async (req, res) => {
+    try {
+        const { applicationId } = req.params;
+        const { coverLetter, resume } = req.body;
+        const userId = req.user.userId;
+
+        const application = await Application.findById(applicationId);
+        if (!application) {
+            return res.status(404).json({ msg: "Application not found" });
+        }
+
+        if (application.applicant.toString() !== userId) {
+            return res.status(403).json({ msg: "Unauthorized" });
+        }
+
+        //update fields
+        if (coverLetter !== undefined) application.coverLetter = coverLetter;
+        if (resume !== undefined) application.resume = resume;
+
+        await application.save();
+
+        res.status(200).json({
+            msg: "Application updated successfully",
+            application
+        });
+
+    } catch (err) {
+        res.status(500).json({ msg: "Failed to update application", error: err.message });
     }
 };
 
@@ -149,35 +186,6 @@ export const updateApplicationStatus = async (req, res) => {
         res.status(500).json({ msg: "Failed to update status", error: err.message });
     }
 };
-
-export const editJobApplication = async (req, res) => {
-    try {
-        const { applicationId } = req.params;
-        const updates = req.body;
-        const userId = req.user.userId;
-
-        const application = await Application.findById(applicationId);
-        if (!application) {
-            return res.status(404).json({ msg: "Application not found" });
-        }
-
-        if (application.applicant.toString() !== userId) {
-            return res.status(403).json({ msg: "Unauthorized" });
-        }
-
-        Object.keys(updates).forEach(key => {
-            application[key] = updates[key];
-        });
-
-        await application.save();
-        res.status(200).json({ msg: "Application updated successfully", application });
-
-    } catch (err) {
-        res.status(500).json({ msg: "Failed to update application", error: err.message });
-    }
-};
-
-
 
 
 
