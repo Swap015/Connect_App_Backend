@@ -1,5 +1,9 @@
 import Application from '../models/jobApplicationModel.js';
 import Job from '../models/jobModel.js';
+import User from '../models/userModel.js';
+import Notification from '../models/notificationModel.js';
+import cloudinary from '../config/cloudinaryConfig.mjs';
+import { extractPublicId } from '../utils/extractPublicId.mjs';
 
 //for Applicants
 
@@ -14,7 +18,7 @@ export const applyForJob = async (req, res) => {
         }
 
         if (user.role !== "user") {
-            return res.status(403).json({ msg: "Only users can apply for jobs" });
+            return res.status(403).json({ msg: "Only users can apply for job" });
         }
 
         const job = await Job.findById(jobId);
@@ -46,13 +50,18 @@ export const applyForJob = async (req, res) => {
         await job.save();
         await application.save();
 
+        //Notification
+        await Notification.create({
+            type: "jobApplication",
+            sender: userId,           // Applicant
+            receiver: job.postedBy,  // Recruiter
+            job: jobId,
+            message: `${user.name} has applied for your job "${job.title}"`
+        });
 
         res.status(201).json({ msg: "Applied successfully", application });
 
     } catch (err) {
-        if (err.code === 11000) {
-            return res.status(400).json({ msg: "You have already applied for this job" });
-        }
         res.status(500).json({ msg: "Failed to apply", error: err.message });
     }
 };
@@ -83,7 +92,7 @@ export const deleteJobApplication = async (req, res) => {
             return res.status(404).json({ msg: "Application not found" });
         }
 
-      
+
         if (application.applicant.toString() !== userId) {
             return res.status(403).json({ msg: "Unauthorized" });
         }
@@ -119,9 +128,22 @@ export const editJobApplication = async (req, res) => {
             return res.status(403).json({ msg: "Unauthorized" });
         }
 
-        //update fields
-        if (coverLetter !== undefined) application.coverLetter = coverLetter;
-        if (resume !== undefined) application.resume = resume;
+        if (coverLetter !== undefined) {
+            application.coverLetter = coverLetter;
+        }
+        // If a new resume is uploaded
+        if (req.file && req.file.path) {
+
+            // Delete old resume from Cloudinary
+            if (application.resumeUrl) {
+                const publicId = extractPublicId(application.resumeUrl);
+                if (publicId) {
+                    await cloudinary.uploader.destroy(publicId);
+                }
+            }
+
+            application.resumeUrl = req.file.path;
+        }
 
         await application.save();
 
@@ -135,7 +157,7 @@ export const editJobApplication = async (req, res) => {
     }
 };
 
-//for Recruiter 
+//for Recruiters 
 
 export const viewApplicants = async (req, res) => {
     try {
@@ -168,7 +190,7 @@ export const updateApplicationStatus = async (req, res) => {
         const { status } = req.body;
         const userId = req.user.userId;
 
-        const application = await Application.findById(applicationId).populate("job");
+        const application = await Application.findById(applicationId).populate("job").populate("applicant", "name");
         if (!application) {
             return res.status(404).json({ msg: "Application not found" });
         }
@@ -179,6 +201,15 @@ export const updateApplicationStatus = async (req, res) => {
 
         application.status = status;
         await application.save();
+
+        //Notification 
+        await Notification.create({
+            type: "jobStatusUpdate",
+            sender: userId,                    // recruiter
+            receiver: application.applicant._id, // applicant
+            job: application.job._id,
+            message: `Your application for "${application.job.title}" is now "${status}".`
+        });
 
         res.status(200).json({ msg: "Status updated successfully", application });
 

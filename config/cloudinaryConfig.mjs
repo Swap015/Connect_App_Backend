@@ -8,6 +8,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+//PROFILE PHOTO
 export const profileStorage = new CloudinaryStorage({
     cloudinary,
     params: {
@@ -17,11 +18,22 @@ export const profileStorage = new CloudinaryStorage({
     },
 });
 
+//POST
 export const postStorage = new CloudinaryStorage({
     cloudinary,
     params: {
         folder: 'connect/posts',
         allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+    },
+});
+
+//RESUME
+export const resumeStorage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+        folder: 'connect/resumes',
+        allowed_formats: ['pdf', 'doc', 'docx'],
+        resource_type: 'raw'
     },
 });
 

@@ -4,7 +4,8 @@ const notificationSchema = new mongoose.Schema({
 
     type: {
         type: String,
-        enum: ["like", "comment", "follow", "newPost", "profileVisit", "mention"],
+        enum: ["like", "comment", "follow", "newPost", "profileVisit", "mention", "jobApplication",
+            "jobStatusUpdate"],
         required: true
     },
     sender: {
@@ -22,6 +23,10 @@ const notificationSchema = new mongoose.Schema({
     read: {
         type: Boolean,
         default: false
+    },
+    job: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Job"
     },
     createdAt: {
         type: Date,
