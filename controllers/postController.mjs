@@ -5,8 +5,6 @@ import Notification from "../models/notificationModel.js";
 import User from "../models/userModel.js";
 
 
-
-
 export const createPost = async (req, res) => {
     try {
         const { content } = req.body;

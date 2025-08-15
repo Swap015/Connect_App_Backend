@@ -32,6 +32,7 @@ export const registerUser = async (req, res) => {
             education,
             skills,
             headline,
+            gender
         });
 
         await user.save();
@@ -112,7 +113,6 @@ export const logoutUser = async (req, res) => {
     }
     catch (err) {
         res.status(400).json({ msg: "Logout failed" });
-
     }
 };
 

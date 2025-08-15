@@ -23,6 +23,10 @@ const commentSchema = new mongoose.Schema({
     mentions: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
+    }],
+    replies: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Comment"
     }]
 }, { timestamps: true });
 

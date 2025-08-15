@@ -163,6 +163,7 @@ export const viewApplicants = async (req, res) => {
     try {
         const { jobId } = req.params;
         const userId = req.user.userId;
+        const { status, location, skill } = req.query;
 
         const job = await Job.findById(jobId);
         if (!job) {
@@ -173,9 +174,22 @@ export const viewApplicants = async (req, res) => {
             return res.status(403).json({ msg: "Unauthorized" });
         }
 
+        //filters
+        let filters = { job: jobId };
+        if (status) filters.status = status;
+        if (location) filters["applicant.location"] = location;
+        if (skill) filters["applicant.skills"] = skill;
+
         const applicants = await Application.find({ job: jobId })
-            .populate("applicant", "name email")
-            .sort({ createdAt: -1 });
+            .populate({
+                path: "applicant",
+                select: "name email location skills",
+                match: {
+                    ...(location ? { location } : {}),
+                    ...(skill ? { skills: skill } : {})
+                }
+            }).sort({ createdAt: -1 });
+
 
         res.status(200).json({ applicants });
 

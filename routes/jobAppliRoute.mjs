@@ -6,6 +6,8 @@ import { uploadResume } from '../middlewares/uploadMiddleware.mjs';
 
 const router = express.Router();
 
+//user routes
+
 router.post(
     "/apply",
     verifyToken,
@@ -24,6 +26,13 @@ router.get("/userApplications",
     verifyToken,
     myApplications);
 
+router.delete("/delete/:applicationId",
+    verifyToken,
+    deleteJobApplication);
+
+
+//recruiter routes
+
 router.get("/getApplicants/:applicationId",
     verifyToken,
     viewApplicants);
@@ -32,9 +41,7 @@ router.put("/edit/:applicationId",
     verifyToken,
     updateApplicationStatus);
 
-router.delete("/delete/:applicationId",
-    verifyToken,
-    deleteJobApplication);
+
 
 
 export default router;

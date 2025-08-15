@@ -3,10 +3,9 @@ import Comment from "../models/commentModel.js";
 import Notification from "../models/notificationModel.js";
 
 
-
 export const addComment = async (req, res) => {
     try {
-        const { text, mentions, parentComment } = req.body;
+        const { text, mentions = [], parentComment = null } = req.body;
         if (!text) return res.status(400).json({ msg: "Comment cannot be empty" });
 
         const post = await Post.findById(req.params.postId);
@@ -21,10 +20,17 @@ export const addComment = async (req, res) => {
         });
 
         await comment.save();
-        post.comments.push(comment._id);
-        await post.save();
 
-        // Notify post owner if not commenter
+        if (parentComment) {
+            await Comment.findByIdAndUpdate(parentComment, {
+                $push: { replies: comment._id }
+            });
+        } else {
+            post.comments.push(comment._id);
+            await post.save();
+        }
+
+        // Notify post owner 
         if (post.postedBy.toString() !== req.user.userId) {
             await Notification.create({
                 sender: req.user.userId,
@@ -65,10 +71,18 @@ export const deleteComment = async (req, res) => {
             return res.status(403).json({ msg: "Unauthorized" });
         }
 
-        await Comment.findByIdAndDelete(commentId);
-        await Comment.deleteMany({ parentComment: commentId });
+        if (comment.parentComment) {
+            // If it's a reply
+            await Comment.findByIdAndUpdate(comment.parentComment, {
+                $pull: { replies: comment._id }
+            });
+        } else {
+            // If it's a top-level comment on the post
+            await Post.findByIdAndUpdate(postId, { $pull: { comments: commentId } });
+        }
 
-        await Post.findByIdAndUpdate(postId, { $pull: { comments: commentId } });
+        // Delete the comment and all its replies
+        await Comment.deleteMany({ $or: [{ _id: commentId }, { parentComment: commentId }] });
 
         res.status(200).json({ msg: "Comment deleted" });
     } catch (err) {
@@ -103,9 +117,15 @@ export const editComment = async (req, res) => {
 export const getPostComments = async (req, res) => {
     try {
         const { postId } = req.params;
-        const comments = await Comment.find({ post: postId })
+        const comments = await Comment.find({ post: postId, parentComment: null })
             .populate("commentedBy", "name")
-            .populate("mentions", "name")
+            .populate("mentions", "name").populate({
+                path: "replies",
+                populate: [
+                    { path: "commentedBy", select: "name" },
+                    { path: "mentions", select: "name" }
+                ]
+            })
             .sort({ createdAt: -1 });
         res.status(200).json({ comments });
 
