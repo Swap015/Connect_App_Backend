@@ -12,7 +12,8 @@ import searchRoute from './routes/searchRoute.mjs';
 import jobRoute from './routes/jobRoutes.mjs';
 import jobApplicationRoutes from './routes/jobAppliRoute.mjs';
 import commentRoutes from './routes/commentsRoute.mjs';
-import Message from './models/messageModel.mjs';
+import profilePicRoutes from './routes/profilePicRoute.mjs';
+import Message from './models/messageModel.js';
 import { createServer } from "http";
 import { Server } from "socket.io";
 
@@ -74,8 +75,6 @@ io.on("connection", (socket) => {
 
 
 
-
-
 //routes
 app.use('/api/user', userRoutes);
 app.use('/api/post', postRoutes);
@@ -85,6 +84,7 @@ app.use('/api/global', searchRoute);
 app.use('/api/job', jobRoute);
 app.use('/api/applications', jobApplicationRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/profilePic', profilePicRoutes);
 
 
 server.listen(PORT, () => {

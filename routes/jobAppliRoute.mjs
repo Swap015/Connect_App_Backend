@@ -16,7 +16,7 @@ router.post(
 );
 
 router.put(
-    "/:applicationId",
+    "/editApplication/:applicationId",
     verifyToken,
     uploadResume.single("resume"),
     editJobApplication
@@ -37,7 +37,7 @@ router.get("/getApplicants/:applicationId",
     verifyToken,
     viewApplicants);
 
-router.put("/edit/:applicationId",
+router.put("/updateStatus/:applicationId",
     verifyToken,
     updateApplicationStatus);
 

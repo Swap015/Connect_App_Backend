@@ -1,7 +1,7 @@
 import User from '../models/userModel.js';
 import cloudinary from '../config/cloudinaryConfig.mjs';
 import { extractPublicId } from '../utils/extractPublicId.mjs';
-
+import defaultProfilePics from '../config/defaultprofilePics.js';
 
 export const uploadProfilePic = async (req, res) => {
     try {
@@ -70,10 +70,16 @@ export const deleteProfilePic = async (req, res) => {
         const publicId = extractPublicId(user.profileImage);
         if (publicId) await cloudinary.uploader.destroy(publicId);
 
+
         user.profileImage = null;
         await user.save();
 
-        res.status(200).json({ msg: 'Profile picture deleted successfully' });
+        const DEFAULT_PROFILE_PIC = defaultProfilePics[user.gender.toLowerCase()];
+
+        res.status(200).json({
+            msg: 'Profile picture deleted successfully',
+            profileImage: DEFAULT_PROFILE_PIC
+        });
     } catch (err) {
         res.status(500).json({ msg: 'Failed to delete profile picture', error: err.message });
     }

@@ -3,8 +3,8 @@ import User from "../models/userModel.js";
 
 export const savePost = async (req, res) => {
     try {
-        myId = req.user.userId;
-        postId = req.params.postId;
+        const myId = req.user.userId;
+        const postId = req.params.postId;
 
         const post = await Post.findById(postId);
         if (!post) {

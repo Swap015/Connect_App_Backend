@@ -1,7 +1,7 @@
 import express from 'express';
 import verifyToken from "../middlewares/authMiddleware.mjs";
 import { uploadProfilePic, updateProfilePic, deleteProfilePic } from "../controllers/profileController.mjs";
-import uploadProfile from "../middlewares/uploadMiddleware.mjs";
+import { uploadProfile } from "../middlewares/uploadMiddleware.mjs";
 
 const router = express.Router();
 
