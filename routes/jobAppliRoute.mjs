@@ -1,6 +1,6 @@
 import express from 'express';
 import verifyToken from '../middlewares/authMiddleware.mjs';
-import { applyForJob, myApplications, deleteJobApplication, editJobApplication, viewApplicants, updateApplicationStatus } from '../controllers/jobAppliController.mjs';
+import { applyForJob, myApplications, deleteJobApplication, editJobApplication, viewApplicants, changeApplicationStatus } from '../controllers/jobAppliController.mjs';
 import { uploadResume } from '../middlewares/uploadMiddleware.mjs';
 
 
@@ -39,7 +39,7 @@ router.get("/getApplicants/:applicationId",
 
 router.put("/updateStatus/:applicationId",
     verifyToken,
-    updateApplicationStatus);
+    changeApplicationStatus);
 
 
 

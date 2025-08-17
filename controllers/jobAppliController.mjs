@@ -198,7 +198,7 @@ export const viewApplicants = async (req, res) => {
     }
 };
 
-export const updateApplicationStatus = async (req, res) => {
+export const changeApplicationStatus = async (req, res) => {
     try {
         const { applicationId } = req.params;
         const { status } = req.body;

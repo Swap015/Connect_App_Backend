@@ -13,6 +13,7 @@ import jobRoute from './routes/jobRoutes.mjs';
 import jobApplicationRoutes from './routes/jobAppliRoute.mjs';
 import commentRoutes from './routes/commentsRoute.mjs';
 import profilePicRoutes from './routes/profilePicRoute.mjs';
+import chatRoutes from "./routes/chatRoutes.mjs";
 import Message from './models/messageModel.js';
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -85,6 +86,8 @@ app.use('/api/job', jobRoute);
 app.use('/api/applications', jobApplicationRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/profilePic', profilePicRoutes);
+app.use("/api/chat", chatRoutes);
+
 
 
 server.listen(PORT, () => {
