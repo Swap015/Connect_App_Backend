@@ -25,6 +25,10 @@ const userSchema = new mongoose.Schema({
         default: "user",
         required: true
     },
+    isVerified: {       //for recruiter only
+        type: Boolean,
+        default: false
+    },
     refreshToken: {
         type: String,
         default: null,

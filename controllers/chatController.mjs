@@ -64,7 +64,7 @@ export const sendMessage = async (req, res) => {
         const senderId = req.user.userId;
         const { conversationId, receiverId, text } = req.body;
 
-        if (!conversationId || !receiverId || (!text && text !== "")) {
+        if (!conversationId || !receiverId || typeof text !== "string") {
             return res.status(400).json({ msg: "conversationId, receiverId and text are required" });
         }
 
@@ -81,7 +81,6 @@ export const sendMessage = async (req, res) => {
             receiver: receiverId,
             text,
         });
-
 
         convo.lastMessage = message._id;
         const currentUnread = Number(convo.unreadCount.get(receiverId) || 0);

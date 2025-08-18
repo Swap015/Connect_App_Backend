@@ -10,10 +10,12 @@ import {
 
 const router = express.Router();
 
-router.post("/conversations", verifyToken, getOrCreateConversation);
-router.get("/conversations", verifyToken, listConversations);
-router.get("/conversations/:conversationId/messages", verifyToken, getMessages);
-router.post("/messages", verifyToken, sendMessage);
+router.post("/conversation", verifyToken, getOrCreateConversation);
+router.get("/getConversations", verifyToken, listConversations);
+router.get("/conversation/:conversationId/messages", verifyToken, getMessages);
+router.post("/sendMessage", verifyToken, sendMessage);
 router.patch("/conversations/:conversationId/read", verifyToken, markConversationRead);
+
+
 
 export default router;

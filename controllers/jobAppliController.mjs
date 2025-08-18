@@ -190,6 +190,36 @@ export const viewApplicants = async (req, res) => {
                 }
             }).sort({ createdAt: -1 });
 
+        
+        applicants = applicants.filter(app => {
+            const user = app.applicant;
+            if (!user) return false;
+
+            let matches = true;
+
+            // filter by location
+            if (location && user.location?.toLowerCase() !== location.toLowerCase()) {
+                matches = false;
+            }
+
+            // filter by skills 
+            if (skills) {
+                const skillArray = skills.split(",").map(s => s.trim().toLowerCase());
+                const userSkills = user.skills.map(s => s.toLowerCase());
+                const hasAllSkills = skillArray.every(skill => userSkills.includes(skill));
+                if (!hasAllSkills) matches = false;
+            }
+
+            // search by name or email 
+            if (search) {
+                const q = search.toLowerCase();
+                if (!user.name.toLowerCase().includes(q) && !user.email.toLowerCase().includes(q)) {
+                    matches = false;
+                }
+            }
+
+            return matches;
+        });
 
         res.status(200).json({ applicants });
 
