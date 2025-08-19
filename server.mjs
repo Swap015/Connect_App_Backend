@@ -62,6 +62,22 @@ io.on("connection", (socket) => {
         }
     });
 
+    //  typing 
+    socket.on("typing", ({ conversationId, senderId, receiverId }) => {
+        const receiverSocketId = onlineUsers.get(receiverId);
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit("typing", { conversationId, senderId });
+        }
+    });
+
+    //  stop typing 
+    socket.on("stopTyping", ({ conversationId, senderId, receiverId }) => {
+        const receiverSocketId = onlineUsers.get(receiverId);
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit("stopTyping", { conversationId, senderId });
+        }
+    });
+
     socket.on("disconnect", () => {
         console.log("❌ Socket disconnected:", socket.id);
         for (let [userId, sockId] of onlineUsers) {

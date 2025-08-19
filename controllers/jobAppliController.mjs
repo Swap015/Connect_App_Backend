@@ -180,7 +180,7 @@ export const viewApplicants = async (req, res) => {
         if (location) filters["applicant.location"] = location;
         if (skill) filters["applicant.skills"] = skill;
 
-        const applicants = await Application.find({ job: jobId })
+        let applicants = await Application.find({ job: jobId })
             .populate({
                 path: "applicant",
                 select: "name email location skills",
@@ -190,7 +190,7 @@ export const viewApplicants = async (req, res) => {
                 }
             }).sort({ createdAt: -1 });
 
-        
+
         applicants = applicants.filter(app => {
             const user = app.applicant;
             if (!user) return false;

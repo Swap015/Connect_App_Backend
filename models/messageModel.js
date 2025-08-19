@@ -9,7 +9,7 @@ const attachmentSchema = new mongoose.Schema({
     originalName: { type: String },
     width: { type: Number },
     height: { type: Number },
-    duration: { type: Number }         //for videos
+    duration: { type: Number }        //for videos
 }, { _id: false });
 
 const messageSchema = new mongoose.Schema({
@@ -24,8 +24,12 @@ const messageSchema = new mongoose.Schema({
     attachments: { type: [attachmentSchema], default: [] },
 
     readAt: { type: Date, default: null },
-    deletedFor: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]
+    deletedBy: [{
+        type: mongoose.Schema.Types.ObjectId, ref: "User",
+    }]
+
 }, { timestamps: true });
 
+messageSchema.index({ conversation: 1, createdAt: -1 });
 
 export default mongoose.model("Message", messageSchema); 
