@@ -1,24 +1,13 @@
 
 import User from "../models/userModel.js";
 
-export const verifyRecruiter = async (req, res) => {
+export const verifyAdmin = (req, res, next) => {
     try {
-        const { recruiterId } = req.params;
-
-        const user = await User.findById(recruiterId);
-        if (!user) {
-            return res.status(404).json({ msg: "Recruiter not found" });
+        if (!req.user || req.user.role !== "admin") {
+            return res.status(403).json({ msg: "Access denied, Admins only" });
         }
-
-        if (user.role !== "recruiter") {
-            return res.status(400).json({ msg: "Only recruiters can be verified" });
-        }
-
-        user.isVerified = true;
-        await user.save();
-
-        res.status(200).json({ msg: "Recruiter verified successfully", user });
+        next();
     } catch (err) {
-        res.status(500).json({ msg: "Failed to verify recruiter", error: err.message });
+        res.status(401).json({ msg: "Not authorized" });
     }
 };

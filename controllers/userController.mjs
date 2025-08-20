@@ -71,7 +71,8 @@ export const loginUser = async (req, res) => {
         res.status(200).json({ msg: "Login successful", accessToken, refreshToken });
     }
     catch (err) {
-        res.status(400).json({ msg: "Login failed" });
+        res.status(400).json({ msg: "Login failed", error: err.message });
+
     }
 };
 
@@ -116,17 +117,37 @@ export const logoutUser = async (req, res) => {
     }
 };
 
-//Search user
 
-export const searchUsers = async (req, res) => {
+// search & filter users
+export const filterUsers = async (req, res) => {
     try {
-        const { keyword } = req.query;
-        const users = await User.find({
-            name: { $regex: keyword, $options: "i" }
-        }).select("-password");
+        const { keyword, location, skills, company, role } = req.query;
+
+        let query = {};
+
+        if (keyword) {
+            query.$or = [
+                { name: { $regex: keyword, $options: "i" } },
+                { headline: { $regex: keyword, $options: "i" } }
+            ];
+        }
+
+        if (location) query.location = { $regex: location, $options: "i" };
+        if (company) query.companyName = { $regex: company, $options: "i" };
+        if (role) query.role = role;
+
+        if (skills) {
+            const skillsArray = skills.split(",").filter(s => s.trim() !== "");
+            if (skillsArray.length > 0) {
+                query.skills = { $in: skillsArray.map(skill => new RegExp(skill, "i")) };
+            }
+        }
+
+        const users = await User.find(query).select("-password");
 
         res.status(200).json({ users });
     } catch (err) {
-        res.status(400).json({ msg: "User search failed", error: err.message });
+        res.status(400).json({ msg: "User filter failed", error: err.message });
     }
 };
+

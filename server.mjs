@@ -15,6 +15,7 @@ import commentRoutes from './routes/commentsRoute.mjs';
 import profilePicRoutes from './routes/profilePicRoute.mjs';
 import chatRoutes from "./routes/chatRoutes.mjs";
 import Message from './models/messageModel.js';
+import AdminRoutes from './routes/adminRoutes.mjs';
 import { createServer } from "http";
 import { Server } from "socket.io";
 
@@ -91,7 +92,6 @@ io.on("connection", (socket) => {
 
 
 
-
 //routes
 app.use('/api/user', userRoutes);
 app.use('/api/post', postRoutes);
@@ -103,6 +103,7 @@ app.use('/api/applications', jobApplicationRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/profilePic', profilePicRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/admin", AdminRoutes);
 
 
 

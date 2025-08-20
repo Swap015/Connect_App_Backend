@@ -47,10 +47,10 @@ export const getUserPosts = async (req, res) => {
         const posts = await Post.find({ postedBy: req.params.userId }).sort({ createdAt: -1 });
 
         if (!posts || posts.length === 0) {
-            return res.status(404).json({ msg: "No posts found for this user" });
+            return res.status(200).json({ posts, msg: "No posts found for this user" });
+
         }
 
-        res.status(200).json({ posts });
     }
     catch (err) {
         return res.status(400).json({ msg: "Post fetching failed", error: err.message });
@@ -124,18 +124,37 @@ export const getPostById = async (req, res) => {
     }
 };
 
-//Search Posts
-export const searchPosts = async (req, res) => {
-    try {
-        const keyword = req.query.keyword?.trim() || "";
 
-        const posts = await Post.find({
-            content: { $regex: keyword, $options: "i" }
-        }).populate("postedBy", "name profileImage");
+
+// search & filter posts
+export const filterPosts = async (req, res) => {
+    try {
+        const { keyword, userId, startDate, endDate, hasImage } = req.query;
+
+        let query = {};
+
+        if (keyword) {
+            query.content = { $regex: keyword, $options: "i" };
+        }
+
+        if (userId) query.postedBy = userId;
+
+        if (startDate || endDate) {
+            query.createdAt = {};
+            if (startDate) query.createdAt.$gte = new Date(startDate);
+            if (endDate) query.createdAt.$lte = new Date(endDate);
+        }
+
+        if (hasImage === "true") query.file = { $exists: true, $ne: [] };
+        if (hasImage === "false") query.file = { $size: 0 };
+
+        const posts = await Post.find(query)
+            .populate("postedBy", "name profileImage")
+            .sort({ createdAt: -1 });
 
         res.status(200).json({ posts });
     } catch (err) {
-        res.status(400).json({ msg: "Search failed", error: err.message });
+        res.status(400).json({ msg: "Post filter failed", error: err.message });
     }
 };
 
