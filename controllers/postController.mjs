@@ -125,7 +125,6 @@ export const getPostById = async (req, res) => {
 };
 
 
-
 // search & filter posts
 export const filterPosts = async (req, res) => {
     try {

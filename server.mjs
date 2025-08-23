@@ -23,7 +23,10 @@ import { Server } from "socket.io";
 const app = express();
 const PORT = process.env.PORT || 7000;
 app.use(express.json());
-app.use(cors({ credentials: true }));
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+}));
 
 // connection to database
 connectDB();
