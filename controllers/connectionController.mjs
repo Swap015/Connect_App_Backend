@@ -54,12 +54,20 @@ export const acceptConnectionRequest = async (req, res) => {
             return res.status(400).json({ msg: "You are already connected with this user" });
         }
 
-        // Remove request after accepting
+        // remove request after accepting
         me.connectionRequests = me.connectionRequests.filter(req => req.user.toString() !== senderId);
         sender.sentRequests = sender.sentRequests.filter(id => id.toString() !== myId);
 
+        //add to connections array
         me.connections.push(senderId);
         sender.connections.push(myId);
+
+        //added both to following and followers of each other
+        if (!me.following.includes(senderId)) me.following.push(senderId);
+        if (!me.followers.includes(senderId)) me.followers.push(senderId);
+
+        if (!sender.following.includes(myId)) sender.following.push(myId);
+        if (!sender.followers.includes(myId)) sender.followers.push(myId);
 
         await me.save();
         await sender.save();

@@ -28,7 +28,7 @@ export const createPost = async (req, res) => {
         const notifications = followerIds.map(followerId => ({
             sender: req.user.userId,
             receiver: followerId,
-            type: "new_post",
+            type: "newPost",
             post: post._id
         }));
 
@@ -185,6 +185,29 @@ export const deletePost = async (req, res) => {
 };
 
 
+//get posts on home page
+export const getFeedPosts = async (req, res) => {
+    try {
+        const me = await User.findById(req.user.userId);
+
+        if (!me) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+
+        // all IDs the user follows
+        const followingIds = me.following;
+
+        followingIds.push(me._id);
+
+        const posts = await Post.find({ postedBy: { $in: followingIds } })
+            .populate("postedBy", "name profileImage")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({ posts });
+    } catch (err) {
+        res.status(400).json({ msg: "Failed to fetch feed posts", error: err.message });
+    }
+};
 
 
 

@@ -151,3 +151,17 @@ export const filterUsers = async (req, res) => {
     }
 };
 
+
+// logged in user
+export const getLoggedInUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId).select("-password");
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+        res.status(200).json({ user });
+    } catch (err) {
+        res.status(400).json({ msg: "Failed to fetch logged-in user" });
+    }
+};
+
