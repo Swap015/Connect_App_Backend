@@ -6,7 +6,6 @@ const REFRESH_EXPIRY = process.env.REFRESH_EXPIRY;
 
 
 export const generateAccessToken = (userId) => {
-
     return jwt.sign({ userId },
         JWT_SECRET,
         { expiresIn: ACCESS_EXPIRY });

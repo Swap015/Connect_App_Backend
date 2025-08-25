@@ -1,5 +1,5 @@
 import express from 'express';
-import { createPost, editPost, deletePost, getUserPosts, getAllPosts, filterPosts, getFeedPosts } from '../controllers/postController.mjs';
+import { createPost, editPost, deletePost, getUserPosts, getAllPosts, filterPosts, getFeedPosts, getLikedPosts } from '../controllers/postController.mjs';
 import { likePost } from '../controllers/likeController.mjs';
 import verifyToken from '../middlewares/authMiddleware.mjs';
 import { uploadPost } from '../middlewares/uploadMiddleware.mjs';
@@ -33,7 +33,8 @@ router.get('/saved-posts/:postId', verifyToken, getSavedPosts);
 //home feed
 router.get('/feed', verifyToken, getFeedPosts);
 
-
+//liked posts 
+router.get("/liked", verifyToken, getLikedPosts);
 
 
 

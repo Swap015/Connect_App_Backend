@@ -48,9 +48,8 @@ export const getUserPosts = async (req, res) => {
 
         if (!posts || posts.length === 0) {
             return res.status(200).json({ posts, msg: "No posts found for this user" });
-
         }
-
+        return res.status(200).json({ posts });
     }
     catch (err) {
         return res.status(400).json({ msg: "Post fetching failed", error: err.message });
@@ -210,5 +209,18 @@ export const getFeedPosts = async (req, res) => {
 };
 
 
+//get posts which are liked by user 
 
+export const getLikedPosts = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const likedPosts = await Post.find({ likes: userId })
+            .populate("postedBy", "name profileImage headline")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({ likedPosts });
+    } catch (err) {
+        res.status(400).json({ msg: "Failed to fetch liked posts", error: err.message });
+    }
+};
 

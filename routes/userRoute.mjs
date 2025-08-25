@@ -7,7 +7,7 @@ import { uploadProfilePic } from '../controllers/profileImgController.mjs';
 import { filterUsers } from "../controllers/userController.mjs";
 import { uploadProfile } from '../middlewares/uploadMiddleware.mjs';
 const router = express.Router();
-import { visitProfile } from '../controllers/profileVisitController.mjs';
+import { getProfileVisits, visitProfile } from '../controllers/profileVisitController.mjs';
 
 
 //routes
@@ -16,6 +16,8 @@ router.post('/login', loginUser);
 router.get('/getUsers', verifyToken, getAllUsers);
 router.get('/getUser/:userId', verifyToken, getUser);
 router.post('/logout', verifyToken, logoutUser);
+
+//refresh access token
 router.post('/refresh', refreshAccessToken);
 
 // Profile picture
@@ -30,7 +32,8 @@ router.post('/unfollow/:id', verifyToken, unfollowUser);
 router.get('/search', verifyToken, filterUsers);
 
 //profile visits
-router.put('profileVisit/:id', verifyToken, visitProfile);
+router.put('/profileVisit/:id', verifyToken, visitProfile);
+router.get('/profileVisits', verifyToken, getProfileVisits);
 
 //logged in user
 router.get("/me", verifyToken, getLoggedInUser);
