@@ -5,10 +5,10 @@ const postSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    file: [{
+    file: {
         type: [String],
         default: []
-    }],
+    },
     postedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"

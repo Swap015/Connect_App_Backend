@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerUser, loginUser, getAllUsers, getUser, logoutUser, getLoggedInUser } from '../controllers/userController.mjs';
+import { registerUser, loginUser, getAllUsers, getUser, logoutUser, getLoggedInUser, updateUserProfile } from '../controllers/userController.mjs';
 import { refreshAccessToken } from '../controllers/refreshAccessController.mjs';
 import verifyToken from '../middlewares/authMiddleware.mjs';
 import { followUser, unfollowUser } from '../controllers/followController.mjs';
@@ -37,6 +37,13 @@ router.get('/profileVisits', verifyToken, getProfileVisits);
 
 //logged in user
 router.get("/me", verifyToken, getLoggedInUser);
+
+// update Profile
+router.put('/updateProfile', verifyToken, updateUserProfile);
+
+
+
+
 
 
 export default router;

@@ -6,18 +6,15 @@ import { uploadPost } from '../middlewares/uploadMiddleware.mjs';
 import { savePost, unSavePost, getSavedPosts } from '../controllers/savePostController.mjs';
 
 
-
 const router = express.Router();
-
 
 //Routes of posts
 
-router.post('/createPost', verifyToken, uploadPost.array('file', 5), createPost);
-router.patch('/editPost/:postId', uploadPost.array('file', 5), verifyToken, editPost);
+router.post('/createPost', verifyToken, uploadPost.array('images', 5), createPost);
+router.patch('/editPost/:postId', verifyToken, uploadPost.array('images', 5), editPost);
 router.delete('/deletePost/:postId', verifyToken, deletePost);
 router.get('/userPosts/:userId', verifyToken, getUserPosts);
 router.get('/allPosts', verifyToken, getAllPosts);
-
 
 //Route for like
 router.patch('/likePost/:postId', verifyToken, likePost);

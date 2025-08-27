@@ -172,3 +172,28 @@ export const getLoggedInUser = async (req, res) => {
     }
 };
 
+
+// update profile details
+export const updateUserProfile = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const updates = req.body;
+
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $set: updates },
+            { new: true, runValidators: true }
+        ).select("-password -refreshToken");
+
+        if (!updatedUser) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+
+        res.status(200).json({
+            msg: "Profile updated successfully",
+            user: updatedUser,
+        });
+    } catch (err) {
+        res.status(400).json({ msg: "Failed to update profile", error: err.message });
+    }
+};

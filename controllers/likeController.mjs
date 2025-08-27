@@ -39,7 +39,12 @@ export const likePost = async (req, res) => {
         }
 
         await post.save();
-        res.status(200).json({ msg: "Post like status updated", likes: post.likes });
+        res.status(200).json({
+            msg: "Post like status updated",
+            likesCount: post.likes.length,
+            likes: post.likes 
+        });
+
     } catch (err) {
         res.status(400).json({ msg: "Like action failed", error: err.message });
     }

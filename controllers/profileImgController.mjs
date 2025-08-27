@@ -67,22 +67,20 @@ export const deleteProfilePic = async (req, res) => {
             return res.status(400).json({ msg: 'No profile picture to delete' });
         }
 
-        const publicId = extractPublicId(user.profileImage);
-        if (publicId) await cloudinary.uploader.destroy(publicId);
-
-
-        user.profileImage = null;
-        await user.save();
-
+        if (user.profileImage) {
+            const publicId = extractPublicId(user.profileImage);
+            if (publicId) await cloudinary.uploader.destroy(publicId);
+        }
+        //assign default profile pic
         const DEFAULT_PROFILE_PIC = defaultProfilePics[user.gender.toLowerCase()];
+        user.profileImage = DEFAULT_PROFILE_PIC;
+        await user.save();
 
         res.status(200).json({
             msg: 'Profile picture deleted successfully',
-            profileImage: DEFAULT_PROFILE_PIC
+            profileImage: user.profileImage
         });
     } catch (err) {
         res.status(500).json({ msg: 'Failed to delete profile picture', error: err.message });
     }
 };
-
-
