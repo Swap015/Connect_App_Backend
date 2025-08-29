@@ -133,7 +133,6 @@ export const markConversationRead = async (req, res) => {
             return res.status(403).json({ msg: "Not a participant" });
         }
 
-
         await Message.updateMany(
             { conversation: conversationId, receiver: userId, readAt: null },
             { $set: { readAt: new Date() } }

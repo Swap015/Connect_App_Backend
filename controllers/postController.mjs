@@ -36,6 +36,8 @@ export const createPost = async (req, res) => {
             await Notification.insertMany(notifications);
         }
         res.status(201).json({ msg: 'Post created successfully', post });
+
+
     }
     catch (err) {
         res.status(400).json({ msg: "Post creation failed", error: err.message });

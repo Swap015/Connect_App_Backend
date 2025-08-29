@@ -21,11 +21,21 @@ export const profileStorage = new CloudinaryStorage({
 //POST
 export const postStorage = new CloudinaryStorage({
     cloudinary,
-    params: {
-        folder: 'connect/posts',
-        allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+    params: async (req, file) => {
+        let resourceType = 'image'; 
+        if (file.mimetype === 'application/pdf') {
+            resourceType = 'raw';
+        } else if (file.mimetype.startsWith('video/')) {
+            resourceType = 'video';
+        }
+        return {
+            folder: 'connect/posts',
+            allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'pdf', 'mp4', 'mov'],
+            resource_type: resourceType,
+        };
     },
 });
+
 
 //RESUME
 export const resumeStorage = new CloudinaryStorage({
