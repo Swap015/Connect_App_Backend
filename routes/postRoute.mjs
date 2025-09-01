@@ -24,8 +24,9 @@ router.get("/search", verifyToken, filterPosts);
 
 //Post save/unsave
 router.put('/savePost/:postId', verifyToken, savePost);
-router.put('/unSavePost/:postId', verifyToken, unSavePost);
+router.put('/unsavePost/:postId', verifyToken, unSavePost);
 router.get('/saved-posts/:postId', verifyToken, getSavedPosts);
+router.get('/savedPosts', verifyToken, getSavedPosts);
 
 //home feed
 router.get('/feed', verifyToken, getFeedPosts);

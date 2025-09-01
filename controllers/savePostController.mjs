@@ -43,7 +43,7 @@ export const unSavePost = async (req, res) => {
     }
 };
 
-export const getSavedPosts = async (req, res) => {
+export const getSavedPost = async (req, res) => {
     try {
         const myId = req.user.userId;
 
@@ -55,5 +55,27 @@ export const getSavedPosts = async (req, res) => {
     }
     catch (err) {
         return res.status(400).json({ msg: "Failed to fetch saved posts" });
+    }
+};
+
+export const getSavedPosts = async (req, res) => {
+    try {
+        const myId = req.user.userId;
+
+        const me = await User.findById(myId).populate({
+            path: "savedPosts",
+            populate: {
+                path: "postedBy",   
+                select: "name profileImage",
+            },
+        });
+
+        if (!me.savedPosts || me.savedPosts.length === 0) {
+            return res.status(200).json({ posts: [], msg: "No saved posts" });
+        }
+
+        return res.status(200).json({ posts: me.savedPosts });
+    } catch (err) {
+        return res.status(400).json({ msg: "Failed to fetch saved posts", error: err.message });
     }
 };

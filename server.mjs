@@ -14,10 +14,9 @@ import jobApplicationRoutes from './routes/jobAppliRoute.mjs';
 import commentRoutes from './routes/commentsRoute.mjs';
 import profilePicRoutes from './routes/profilePicRoute.mjs';
 import chatRoutes from "./routes/chatRoutes.mjs";
-import Message from './models/messageModel.js';
 import AdminRoutes from './routes/adminRoutes.mjs';
+import { initSocket } from './socket/socket.mjs';
 import { createServer } from "http";
-import { Server } from "socket.io";
 
 
 const app = express();
@@ -28,71 +27,16 @@ app.use(cors({
     credentials: true
 }));
 
+app.use(cookieParser());
+
 // connection to database
 connectDB();
 
 
-
 //Socket io
-const server = createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: "http://localhost:5173", // frontend URL
-        credentials: true
-    }
-});
+const server = createServer(app);  
 
-app.use(cookieParser());
-
-let onlineUsers = new Map();
-
-// When a socket connects
-io.on("connection", (socket) => {
-    console.log("⚡ New socket connected:", socket.id);
-
-    socket.on("addUser", (userId) => {
-        onlineUsers.set(userId, socket.id);
-        console.log("Online Users:", onlineUsers);
-    });
-
-    socket.on("sendMessage", async ({ senderId, receiverId, message }) => {
-        // Save message to DB
-        const newMessage = await Message.create({ sender: senderId, receiver: receiverId, message });
-
-        // Emit message to receiver if online
-        const receiverSocketId = onlineUsers.get(receiverId);
-        if (receiverSocketId) {
-            io.to(receiverSocketId).emit("getMessage", newMessage);
-        }
-    });
-
-    //  typing 
-    socket.on("typing", ({ conversationId, senderId, receiverId }) => {
-        const receiverSocketId = onlineUsers.get(receiverId);
-        if (receiverSocketId) {
-            io.to(receiverSocketId).emit("typing", { conversationId, senderId });
-        }
-    });
-
-    //  stop typing 
-    socket.on("stopTyping", ({ conversationId, senderId, receiverId }) => {
-        const receiverSocketId = onlineUsers.get(receiverId);
-        if (receiverSocketId) {
-            io.to(receiverSocketId).emit("stopTyping", { conversationId, senderId });
-        }
-    });
-
-    socket.on("disconnect", () => {
-        console.log("❌ Socket disconnected:", socket.id);
-        for (let [userId, sockId] of onlineUsers) {
-            if (sockId === socket.id) {
-                onlineUsers.delete(userId);
-                break;
-            }
-        }
-    });
-});
-
+initSocket(server);
 
 
 //routes

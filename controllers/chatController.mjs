@@ -62,16 +62,15 @@ export const listConversations = async (req, res) => {
 export const sendMessage = async (req, res) => {
     try {
         const senderId = req.user.userId;
-
         const { conversationId, text, attachments } = req.body;
 
         if (!conversationId || (!text && (!attachments || attachments.length === 0))) {
-            return res.status(400).json({ msg: "conversationId, receiverId and at least text or attachments are required" });
+            return res.status(400).json({ msg: "conversationId and at least text or attachments are required" });
         }
-
 
         const convo = await Conversation.findById(conversationId);
         if (!convo) return res.status(404).json({ msg: "Conversation not found" });
+
         if (!convo.participants.some(p => p.toString() === senderId)) {
             return res.status(403).json({ msg: "Not a participant" });
         }
@@ -91,11 +90,21 @@ export const sendMessage = async (req, res) => {
         convo.unreadCount.set(receiverId, currentUnread + 1);
         await convo.save();
 
+        const io = getIO();
+        const receiverSocketId = onlineUsers.get(receiverId.toString());
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit("getMessage", {
+                ...message.toObject(),
+                conversationId,
+            });
+        }
+
         res.status(201).json({ message });
     } catch (err) {
         res.status(500).json({ msg: "Failed to send message", error: err.message });
     }
 };
+
 
 
 export const getMessages = async (req, res) => {
