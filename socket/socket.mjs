@@ -2,7 +2,7 @@
 import { Server } from "socket.io";
 
 let io;
-let onlineUsers = new Map();
+export const onlineUsers = new Map();
 
 export const initSocket = (server) => {
     io = new Server(server, {
@@ -18,6 +18,7 @@ export const initSocket = (server) => {
         socket.on("addUser", (userId) => {
             onlineUsers.set(String(userId), socket.id);
             console.log("Online Users:", onlineUsers);
+            io.emit("updateOnlineUsers", Array.from(onlineUsers.keys()));
         });
 
 
@@ -53,3 +54,4 @@ export const getIO = () => {
     if (!io) throw new Error("Socket.io not initialized!");
     return io;
 };
+

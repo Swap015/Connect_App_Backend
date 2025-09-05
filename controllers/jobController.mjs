@@ -47,7 +47,8 @@ export const addJob = async (req, res) => {
             skills,
             description,
             requirements,
-            postedBy: req.user.userId
+            postedBy: req.user.userId,
+            isJobActive
         });
 
         res.status(200).json({ msg: "Job added successfully", job });

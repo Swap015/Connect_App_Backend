@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import Message from '../models/messageModel.js';
 import Conversation from "../models/conversationModel.js";
 import User from "../models/userModel.js";
-
+import { getIO, onlineUsers } from "../socket/socket.mjs";
 
 export const getOrCreateConversation = async (req, res) => {
     try {
@@ -62,10 +62,13 @@ export const listConversations = async (req, res) => {
 export const sendMessage = async (req, res) => {
     try {
         const senderId = req.user.userId;
-        const { conversationId, text, attachments } = req.body;
+        const { conversationId, text } = req.body;
 
-        if (!conversationId || (!text && (!attachments || attachments.length === 0))) {
-            return res.status(400).json({ msg: "conversationId and at least text or attachments are required" });
+        if (!conversationId) {
+            return res.status(400).json({ msg: "conversationId is required" });
+        }
+        if (!text && (!req.files || req.files.length === 0)) {
+            return res.status(400).json({ msg: "Message must include text or attachments" });
         }
 
         const convo = await Conversation.findById(conversationId);
@@ -77,19 +80,42 @@ export const sendMessage = async (req, res) => {
 
         const receiverId = convo.participants.find(p => p.toString() !== senderId);
 
+        // build attachments if any files uploaded
+        let attachments = [];
+        if (req.files && req.files.length > 0) {
+            attachments = req.files.map((file) => ({
+                url: file.path,
+                publicId: file.filename,
+                type: file.mimetype.startsWith("image")
+                    ? "image"
+                    : file.mimetype.startsWith("video")
+                        ? "video"
+                        : "file",
+                mimeType: file.mimetype,
+                size: file.size,
+                originalName: file.originalname,
+                width: file.width || null,
+                height: file.height || null,
+                duration: file.duration || null,
+            }));
+        }
+
+        // create message
         const message = await Message.create({
             conversation: conversationId,
             sender: senderId,
             receiver: receiverId,
-            text,
-            attachments: attachments || [],
+            text: text || "",
+            attachments,
         });
 
+        // update conversation
         convo.lastMessage = message._id;
         const currentUnread = Number(convo.unreadCount.get(receiverId) || 0);
         convo.unreadCount.set(receiverId, currentUnread + 1);
         await convo.save();
 
+        // emit using socket.io
         const io = getIO();
         const receiverSocketId = onlineUsers.get(receiverId.toString());
         if (receiverSocketId) {
@@ -101,10 +127,10 @@ export const sendMessage = async (req, res) => {
 
         res.status(201).json({ message });
     } catch (err) {
-        res.status(500).json({ msg: "Failed to send message", error: err.message });
+        console.error("Send message error:", err);
+        res.status(500).json({ error: "Failed to send message" });
     }
 };
-
 
 
 export const getMessages = async (req, res) => {
@@ -118,11 +144,9 @@ export const getMessages = async (req, res) => {
             return res.status(403).json({ msg: "Not a participant" });
         }
 
-
         const messages = await Message
             .find({ conversation: conversationId, deletedBy: { $ne: userId } })
             .sort({ createdAt: 1 });
-
 
         res.status(200).json({ messages });
     } catch (err) {
@@ -165,7 +189,6 @@ export const deleteMessageForMe = async (req, res) => {
         const message = await Message.findById(messageId);
         if (!message) return res.status(404).json({ msg: "Message not found" });
 
-        // Only participants can delete
         if (![message.sender.toString(), message.receiver.toString()].includes(userId)) {
             return res.status(403).json({ msg: "Not allowed to delete this message" });
         }
@@ -191,18 +214,20 @@ export const deleteMessageForEveryone = async (req, res) => {
         const message = await Message.findById(messageId);
         if (!message) return res.status(404).json({ msg: "Message not found" });
 
-        // Only the sender can delete for everyone
         if (message.sender.toString() !== userId) {
             return res.status(403).json({ msg: "Only sender can delete message for everyone" });
         }
 
-        await message.deleteOne();
+        message.text = "This message is deleted for everyone";
+        message.attachments = [];
+        await message.save();
 
         res.status(200).json({ msg: "Message deleted for everyone" });
     } catch (err) {
         res.status(500).json({ msg: "Failed to delete message for everyone", error: err.message });
     }
 };
+
 
 
 export const deleteConversation = async (req, res) => {
@@ -217,10 +242,7 @@ export const deleteConversation = async (req, res) => {
             return res.status(403).json({ msg: "Not a participant" });
         }
 
-        // Delete all messages in this conversation
         await Message.deleteMany({ conversation: conversationId });
-
-        // Delete the conversation itself
         await convo.deleteOne();
 
         res.status(200).json({ msg: "Conversation deleted successfully" });

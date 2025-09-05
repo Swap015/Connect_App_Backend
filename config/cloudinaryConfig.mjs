@@ -47,4 +47,29 @@ export const resumeStorage = new CloudinaryStorage({
     },
 });
 
+
+// CHAT (attachments)
+export const chatStorage = new CloudinaryStorage({
+    cloudinary,
+    params: async (req, file) => {
+        let resourceType = "image";
+        if (file.mimetype.startsWith("video/")) {
+            resourceType = "video";
+        } else if (
+            file.mimetype !== "image/jpeg" &&
+            file.mimetype !== "image/png" &&
+            file.mimetype !== "image/webp"
+        ) {
+            resourceType = "raw"; // for docs, pdfs, zips etc
+        }
+
+        return {
+            folder: "connect/chat",
+            resource_type: resourceType,
+        };
+    },
+});
+
+
+
 export default cloudinary;
