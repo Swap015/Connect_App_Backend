@@ -6,7 +6,7 @@ import verifyToken from '../middlewares/authMiddleware.mjs';
 
 const router = express.Router();
 
-//Routes of comments on the post 
+//Routes of comments
 
 router.post('/addComment/:postId', verifyToken, addComment);
 router.patch('/editComment/:commentId/:postId', verifyToken, editComment);

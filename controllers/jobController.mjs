@@ -1,6 +1,5 @@
 import Job from "../models/jobModel.js";
 
-
 export const addJob = async (req, res) => {
     try {
         const {
@@ -32,11 +31,9 @@ export const addJob = async (req, res) => {
             return res.status(400).json({ msg: "At least one skill is required" });
         }
 
-        // requirements validation
         if (!Array.isArray(requirements) || requirements.length === 0) {
             return res.status(400).json({ msg: "At least one requirement is required" });
         }
-
 
         const job = await Job.create({
             title,
@@ -47,17 +44,15 @@ export const addJob = async (req, res) => {
             skills,
             description,
             requirements,
-            postedBy: req.user.userId,
+            postedBy: req.user?.userId,
             isJobActive
         });
 
         res.status(200).json({ msg: "Job added successfully", job });
-
     }
     catch (err) {
         return res.status(500).json({ msg: 'Failed to Add job', error: err.message });
     }
-
 };
 
 

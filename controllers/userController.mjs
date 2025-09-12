@@ -197,3 +197,19 @@ export const updateUserProfile = async (req, res) => {
         res.status(400).json({ msg: "Failed to update profile", error: err.message });
     }
 };
+
+// mention by name
+export const mentionSearch = async (req, res) => {
+    try {
+        const { q } = req.query; // frontend sends ?q=swap
+        if (!q) return res.status(400).json({ msg: "Query is required" });
+
+        const users = await User.find({
+            name: { $regex: q, $options: "i" }
+        }).select("name profileImage");
+
+        res.status(200).json({ users });
+    } catch (err) {
+        res.status(500).json({ msg: "Mention search failed", error: err.message });
+    }
+};

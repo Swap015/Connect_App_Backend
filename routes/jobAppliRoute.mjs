@@ -9,7 +9,7 @@ const router = express.Router();
 //user routes
 
 router.post(
-    "/apply",
+    "/apply/:jobId",
     verifyToken,
     uploadResume.single("resume"),
     applyForJob
@@ -33,7 +33,7 @@ router.delete("/delete/:applicationId",
 
 //recruiter routes
 
-router.get("/getApplicants/:applicationId",
+router.get("/getApplicants/:jobId",
     verifyToken,
     viewApplicants);
 

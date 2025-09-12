@@ -19,7 +19,10 @@ const jobSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-    applicantsCount: { type: Number, default: 0 },
+    applications: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Application"
+    }],
     isJobActive: { type: Boolean, default: true },
 
 }, {

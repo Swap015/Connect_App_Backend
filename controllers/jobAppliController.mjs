@@ -9,9 +9,10 @@ import { extractPublicId } from '../utils/extractPublicId.mjs';
 
 export const applyForJob = async (req, res) => {
     try {
-        const { jobId, coverLetter } = req.body;
+        const { coverLetter } = req.body;
         const userId = req.user.userId;
-
+        const { jobId } = req.params;
+        
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ msg: "User not found" });
@@ -45,10 +46,11 @@ export const applyForJob = async (req, res) => {
             resumeUrl: req.file.path,
             coverLetter
         });
-
-        job.applicantsCount += 1;
-        await job.save();
         await application.save();
+
+        // Update job applicants list & count
+        job.applications.push(application._id);
+        await job.save();
 
         //Notification
         await Notification.create({
@@ -92,19 +94,22 @@ export const deleteJobApplication = async (req, res) => {
             return res.status(404).json({ msg: "Application not found" });
         }
 
-
         if (application.applicant.toString() !== userId) {
             return res.status(403).json({ msg: "Unauthorized" });
         }
 
-        await application.deleteOne();
-
-        // Reduce applicant count after deleting
-        const job = await Job.findById(application.job);
-        if (job) {
-            job.applicantsCount = Math.max(0, job.applicantsCount - 1);
-            await job.save();
+        if (application.resumeUrl) {
+            const publicId = extractPublicId(application.resumeUrl);
+            if (publicId) {
+                await cloudinary.uploader.destroy(publicId);
+            }
         }
+
+        await Job.findByIdAndUpdate(application.job, {
+            $pull: { applications: application._id }
+        });
+
+        await application.deleteOne();
 
         res.status(200).json({ msg: "Application deleted successfully" });
 
@@ -163,7 +168,7 @@ export const viewApplicants = async (req, res) => {
     try {
         const { jobId } = req.params;
         const userId = req.user.userId;
-        const { status, location, skill } = req.query;
+        const { status, location, skills, search } = req.query;
 
         const job = await Job.findById(jobId);
         if (!job) {

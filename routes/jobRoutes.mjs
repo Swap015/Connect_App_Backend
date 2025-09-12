@@ -11,4 +11,5 @@ router.get("/:jobId", verifyToken, getJobById);
 router.put("/update/:jobId", verifyToken, verifyRecruiter, editJob);
 router.delete("/remove/:jobId", verifyToken, verifyRecruiter, deleteJob);
 
+
 export default router;

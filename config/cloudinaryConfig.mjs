@@ -22,7 +22,7 @@ export const profileStorage = new CloudinaryStorage({
 export const postStorage = new CloudinaryStorage({
     cloudinary,
     params: async (req, file) => {
-        let resourceType = 'image'; 
+        let resourceType = 'image';
         if (file.mimetype === 'application/pdf') {
             resourceType = 'raw';
         } else if (file.mimetype.startsWith('video/')) {
@@ -38,15 +38,24 @@ export const postStorage = new CloudinaryStorage({
 
 
 //RESUME
+
 export const resumeStorage = new CloudinaryStorage({
     cloudinary,
-    params: {
-        folder: 'connect/resumes',
-        allowed_formats: ['pdf', 'doc', 'docx'],
-        resource_type: 'raw'
+    params: async (req, file) => {
+        const ext = file.originalname.split(".").pop();   
+        const baseName = file.originalname
+            .split(".")
+            .slice(0, -1)
+            .join("."); // remove extension safely
+
+        return {
+            folder: "connect/resumes",
+            allowed_formats: ["pdf", "doc", "docx"],
+            resource_type: "raw",
+            public_id: `${Date.now()}-${baseName}.${ext}`,
+        };
     },
 });
-
 
 // CHAT (attachments)
 export const chatStorage = new CloudinaryStorage({

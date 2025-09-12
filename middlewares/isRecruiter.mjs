@@ -1,11 +1,10 @@
 
 import User from "../models/userModel.js";
 
-export const verifyRecruiter = async (req, res) => {
+export const verifyRecruiter = async (req, res, next) => {
     try {
-        const { recruiterId } = req.params;
 
-        const user = await User.findById(recruiterId);
+        const user = await User.findById(req.user.userId);
         if (!user) {
             return res.status(404).json({ msg: "Recruiter not found" });
         }
@@ -18,7 +17,6 @@ export const verifyRecruiter = async (req, res) => {
             return res.status(403).json({ msg: "Recruiter not verified yet" });
         }
 
-        res.status(200).json({ msg: "Recruiter verified successfully", user });
         next();
     } catch (err) {
         res.status(500).json({ msg: "Failed to verify recruiter", error: err.message });

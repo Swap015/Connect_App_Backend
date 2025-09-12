@@ -115,7 +115,7 @@ export const adminDeletePost = async (req, res) => {
 
 
 //jobss
-             
+
 
 export const adminGetAllJobs = async (req, res) => {
     try {
@@ -148,7 +148,7 @@ export const adminToggleJobStatus = async (req, res) => {
     }
 };
 
-// ✅ Admin: Delete any job
+// Delete  job
 export const adminDeleteJob = async (req, res) => {
     try {
         const job = await Job.findById(req.params.jobId);
