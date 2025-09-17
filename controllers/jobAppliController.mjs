@@ -12,7 +12,7 @@ export const applyForJob = async (req, res) => {
         const { coverLetter } = req.body;
         const userId = req.user.userId;
         const { jobId } = req.params;
-        
+
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ msg: "User not found" });
@@ -164,6 +164,7 @@ export const editJobApplication = async (req, res) => {
 
 //for Recruiters 
 
+//  viewApplicants
 export const viewApplicants = async (req, res) => {
     try {
         const { jobId } = req.params;
@@ -179,59 +180,48 @@ export const viewApplicants = async (req, res) => {
             return res.status(403).json({ msg: "Unauthorized" });
         }
 
-        //filters
-        let filters = { job: jobId };
-        if (status) filters.status = status;
-        if (location) filters["applicant.location"] = location;
-        if (skill) filters["applicant.skills"] = skill;
+        const query = { job: jobId };
+        if (status) query.status = status;
 
-        let applicants = await Application.find({ job: jobId })
-            .populate({
-                path: "applicant",
-                select: "name email location skills",
-                match: {
-                    ...(location ? { location } : {}),
-                    ...(skill ? { skills: skill } : {})
-                }
-            }).sort({ createdAt: -1 });
+        let applications = await Application.find(query)
+            .populate("applicant", "name email location skills")
+            .sort({ createdAt: -1 });
 
-
-        applicants = applicants.filter(app => {
+        const filtered = applications.filter(app => {
             const user = app.applicant;
             if (!user) return false;
 
-            let matches = true;
-
-            // filter by location
-            if (location && user.location?.toLowerCase() !== location.toLowerCase()) {
-                matches = false;
-            }
-
-            // filter by skills 
-            if (skills) {
-                const skillArray = skills.split(",").map(s => s.trim().toLowerCase());
-                const userSkills = user.skills.map(s => s.toLowerCase());
-                const hasAllSkills = skillArray.every(skill => userSkills.includes(skill));
-                if (!hasAllSkills) matches = false;
-            }
-
-            // search by name or email 
-            if (search) {
-                const q = search.toLowerCase();
-                if (!user.name.toLowerCase().includes(q) && !user.email.toLowerCase().includes(q)) {
-                    matches = false;
+            if (location) {
+                if (!user.location || user.location.toLowerCase() !== location.toLowerCase()) {
+                    return false;
                 }
             }
 
-            return matches;
+            if (skills) {
+                const expected = skills.split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+                const userSkills = (user.skills || []).map(s => String(s).toLowerCase());
+                if (!expected.every(sk => userSkills.includes(sk))) return false;
+            }
+
+
+            if (search) {
+                const q = search.toLowerCase();
+                const name = (user.name || "").toLowerCase();
+                const email = (user.email || "").toLowerCase();
+                if (!name.includes(q) && !email.includes(q)) return false;
+            }
+
+            return true;
         });
 
-        res.status(200).json({ applicants });
 
+        return res.status(200).json({ applicants: filtered });
     } catch (err) {
-        res.status(500).json({ msg: "Failed to fetch applicants", error: err.message });
+        console.error("viewApplicants error:", err);
+        return res.status(500).json({ msg: "Failed to fetch applicants", error: err.message });
     }
 };
+
 
 export const changeApplicationStatus = async (req, res) => {
     try {

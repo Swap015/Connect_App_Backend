@@ -6,15 +6,12 @@ export const getRecruiterDashboard = async (req, res) => {
     try {
         const recruiterId = req.user.userId;
 
-        // total jobs posted
         const totalJobs = await Job.countDocuments({ postedBy: recruiterId });
 
-        // total applicants 
         const totalApplicants = await Application.countDocuments({
             job: { $in: await Job.find({ postedBy: recruiterId }).distinct("_id") }
         });
 
-        // status wise breakdown 
         const statusCounts = await Application.aggregate([
             {
                 $lookup: {

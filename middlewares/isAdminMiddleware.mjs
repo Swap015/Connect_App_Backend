@@ -1,6 +1,6 @@
 import User from "../models/userModel.js";
 
-export const verifyAdmin = async (req, res, next) => {
+ export const verifyAdmin = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.userId);
 
@@ -16,3 +16,5 @@ export const verifyAdmin = async (req, res, next) => {
         res.status(500).json({ msg: "Failed to verify admin", error: err.message });
     }
 };
+
+export default verifyAdmin;

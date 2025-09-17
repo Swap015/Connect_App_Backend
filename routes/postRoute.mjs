@@ -1,5 +1,5 @@
 import express from 'express';
-import { createPost, editPost, deletePost, getUserPosts, getAllPosts, filterPosts, getFeedPosts, getLikedPosts } from '../controllers/postController.mjs';
+import { createPost, editPost, deletePost, getUserPosts, getAllPosts, filterPosts, getFeedPosts, getLikedPosts, getPostById } from '../controllers/postController.mjs';
 import { likePost } from '../controllers/likeController.mjs';
 import verifyToken from '../middlewares/authMiddleware.mjs';
 import { uploadPost } from '../middlewares/uploadMiddleware.mjs';
@@ -15,6 +15,7 @@ router.patch('/editPost/:postId', verifyToken, uploadPost.array('images', 5), ed
 router.delete('/deletePost/:postId', verifyToken, deletePost);
 router.get('/userPosts/:userId', verifyToken, getUserPosts);
 router.get('/allPosts', verifyToken, getAllPosts);
+router.get('/getPost/:postId', verifyToken, getPostById);
 
 //Route for like
 router.patch('/likePost/:postId', verifyToken, likePost);

@@ -30,7 +30,7 @@ export const addComment = async (req, res) => {
             await post.save();
         }
 
-        // Notify post owner 
+    
         if (post.postedBy.toString() !== req.user.userId) {
             await Notification.create({
                 sender: req.user.userId,
@@ -40,7 +40,6 @@ export const addComment = async (req, res) => {
             });
         }
 
-        // Notify mentioned users
         if (mentions && mentions.length > 0) {
             const notifications = mentions
                 .filter(id => id.toString() !== req.user.userId && id.toString() !== post.postedBy.toString())
@@ -72,16 +71,16 @@ export const deleteComment = async (req, res) => {
         }
 
         if (comment.parentComment) {
-            // If it's a reply
+         
             await Comment.findByIdAndUpdate(comment.parentComment, {
                 $pull: { replies: comment._id }
             });
         } else {
-            // If it's a top-level comment on the post
+            
             await Post.findByIdAndUpdate(postId, { $pull: { comments: commentId } });
         }
 
-        // Delete the comment and all its replies
+        // Delete comment 
         await Comment.deleteMany({ $or: [{ _id: commentId }, { parentComment: commentId }] });
 
         res.status(200).json({ msg: "Comment deleted" });
@@ -118,7 +117,7 @@ export const getPostComments = async (req, res) => {
     try {
         const { postId } = req.params;
         const comments = await Comment.find({ post: postId, parentComment: null })
-            .populate("commentedBy", "name")
+            .populate("commentedBy", "name profileImage")
             .populate("mentions", "name").populate({
                 path: "replies",
                 populate: [

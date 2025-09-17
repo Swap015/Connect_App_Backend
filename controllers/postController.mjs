@@ -46,7 +46,10 @@ export const createPost = async (req, res) => {
 
 export const getUserPosts = async (req, res) => {
     try {
-        const posts = await Post.find({ postedBy: req.params.userId }).sort({ createdAt: -1 });
+        const posts = await Post.find({ postedBy: req.params.userId })
+            .populate("postedBy", "name profileImage headline positionAtCompany companyName")
+            .sort({ createdAt: -1 });
+
 
         if (!posts || posts.length === 0) {
             return res.status(200).json({ posts, msg: "No posts found for this user" });
@@ -61,7 +64,9 @@ export const getUserPosts = async (req, res) => {
 
 export const getAllPosts = async (req, res) => {
     try {
-        const posts = await Post.find().sort({ createdAt: -1 });
+        const posts = await Post.find()
+            .populate("postedBy", "name profileImage headline positionAtCompany companyName")
+            .sort({ createdAt: -1 });
         if (posts.length === 0) {
             return res.status(404).json({ msg: "No Post found" })
         }
@@ -111,10 +116,10 @@ export const editPost = async (req, res) => {
 export const getPostById = async (req, res) => {
     try {
         const post = await Post.findById(req.params.postId)
-            .populate("postedBy", "name email")
+            .populate("postedBy", "name email profileImage headline positionAtCompany companyName")
             .populate({
-                path: "comments",
-                populate: { path: "commentedBy", select: "name" }
+                path: "comments.user",
+                select: "name profileImage"
             });
 
         if (!post) return res.status(404).json({ msg: "Post not found" });

@@ -45,12 +45,16 @@ export const registerUser = async (req, res) => {
 };
 
 export const loginUser = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
     try {
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ msg: "User not found" });
         }
+        if (user.role !== role) {
+            return res.status(403).json({ msg: `This account is registered as a ${user.role}. Please login with correct role.` });
+        }
+
         const checkPassword = await bcrypt.compare(password, user.password);
         if (!checkPassword) {
             return res.status(400).json({ msg: "Invalid Credentials" });
@@ -95,7 +99,11 @@ export const getAllUsers = async (req, res) => {
 
 export const getUser = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id).select("-password");
+        const user = await User.findById(req.params.userId).select("-password");
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+        
         res.status(200).json({ user });
     }
     catch (err) {

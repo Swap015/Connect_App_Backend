@@ -1,5 +1,6 @@
 import express from 'express';
 import verifyToken from '../middlewares/authMiddleware.mjs';
+import {verifyRecruiter} from '../middlewares/isRecruiter.mjs';
 import { applyForJob, myApplications, deleteJobApplication, editJobApplication, viewApplicants, changeApplicationStatus } from '../controllers/jobAppliController.mjs';
 import { uploadResume } from '../middlewares/uploadMiddleware.mjs';
 
@@ -34,13 +35,12 @@ router.delete("/delete/:applicationId",
 //recruiter routes
 
 router.get("/getApplicants/:jobId",
-    verifyToken,
+    verifyToken, verifyRecruiter,
     viewApplicants);
 
 router.put("/updateStatus/:applicationId",
-    verifyToken,
+    verifyToken, verifyRecruiter,
     changeApplicationStatus);
-
 
 
 
