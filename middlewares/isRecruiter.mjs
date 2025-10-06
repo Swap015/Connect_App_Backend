@@ -1,7 +1,7 @@
 
 import User from "../models/userModel.js";
 
-export  const verifyRecruiter = async (req, res, next) => {
+export const verifyRecruiter = async (req, res, next) => {
     try {
 
         const user = await User.findById(req.user.userId);
@@ -11,10 +11,6 @@ export  const verifyRecruiter = async (req, res, next) => {
 
         if (user.role !== "recruiter") {
             return res.status(400).json({ msg: "Only recruiters can be verified" });
-        }
-
-        if (!user.isVerified) {
-            return res.status(403).json({ msg: "Recruiter not verified yet" });
         }
 
         next();

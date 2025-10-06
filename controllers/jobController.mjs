@@ -10,13 +10,11 @@ export const addJob = async (req, res) => {
             return res.status(400).json({ msg: "All the fields are required" });
         }
 
-        //  job type validation
         const validJobTypes = ["Full Time", "Part Time", "Internship"];
         if (!validJobTypes.includes(jobType)) {
             return res.status(400).json({ msg: "Invalid job type" });
         }
 
-        // salary validation
         if (salaryRange) {
             if (salaryRange.min < 0 || salaryRange.max < 0) {
                 return res.status(400).json({ msg: "Salary cannot be negative" });
@@ -26,7 +24,6 @@ export const addJob = async (req, res) => {
             }
         }
 
-        // skills validation
         if (!Array.isArray(skills) || skills.length === 0) {
             return res.status(400).json({ msg: "At least one skill is required" });
         }

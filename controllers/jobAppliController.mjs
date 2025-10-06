@@ -43,12 +43,11 @@ export const applyForJob = async (req, res) => {
         const application = new Application({
             job: jobId,
             applicant: userId,
-            resumeUrl: req.file.path,
+            resumeUrl: req.file.path || req.file.secure_url,
             coverLetter
         });
         await application.save();
 
-        // Update job applicants list & count
         job.applications.push(application._id);
         await job.save();
 
@@ -164,7 +163,6 @@ export const editJobApplication = async (req, res) => {
 
 //for Recruiters 
 
-//  viewApplicants
 export const viewApplicants = async (req, res) => {
     try {
         const { jobId } = req.params;
@@ -203,7 +201,6 @@ export const viewApplicants = async (req, res) => {
                 if (!expected.every(sk => userSkills.includes(sk))) return false;
             }
 
-
             if (search) {
                 const q = search.toLowerCase();
                 const name = (user.name || "").toLowerCase();
@@ -225,11 +222,18 @@ export const viewApplicants = async (req, res) => {
 
 export const changeApplicationStatus = async (req, res) => {
     try {
-        const { applicationId } = req.params;
+        const { applicationId, jobId } = req.params;
         const { status } = req.body;
         const userId = req.user.userId;
 
-        const application = await Application.findById(applicationId).populate("job").populate("applicant", "name");
+        const allowedStatuses = ["Pending", "Shortlisted", "Rejected", "Hired"];
+        if (!allowedStatuses.includes(status)) {
+            return res.status(400).json({ msg: "Invalid status value" });
+        }
+
+        const application = await Application.findById(applicationId)
+            .populate("job")
+            .populate("applicant", "name email");
         if (!application) {
             return res.status(404).json({ msg: "Application not found" });
         }
@@ -241,21 +245,22 @@ export const changeApplicationStatus = async (req, res) => {
         application.status = status;
         await application.save();
 
-        //Notification 
         await Notification.create({
             type: "jobStatusUpdate",
-            sender: userId,                    // recruiter
-            receiver: application.applicant._id, // applicant
+            sender: userId,                        // recruiter
+            receiver: application.applicant._id,   // applicant
             job: application.job._id,
             message: `Your application for "${application.job.title}" is now "${status}".`
         });
 
-        res.status(200).json({ msg: "Status updated successfully", application });
+        res.status(200).json({
+            msg: "Status updated successfully",
+            application
+        });
 
     } catch (err) {
         res.status(500).json({ msg: "Failed to update status", error: err.message });
     }
 };
-
 
 

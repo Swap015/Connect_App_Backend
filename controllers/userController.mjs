@@ -52,7 +52,7 @@ export const loginUser = async (req, res) => {
             return res.status(404).json({ msg: "User not found" });
         }
         if (user.role !== role) {
-            return res.status(403).json({ msg: `This account is registered as a ${user.role}. Please login with correct role.` });
+            return res.status(403).json({ msg: "Invalid Credentials" });
         }
 
         const checkPassword = await bcrypt.compare(password, user.password);
@@ -69,7 +69,7 @@ export const loginUser = async (req, res) => {
             httpOnly: true,
             secure: false,
             sameSite: "lax",
-            maxAge: 15 * 60 * 1000
+            maxAge: 2 * 60 * 60 * 1000
         })
 
         res.cookie("refreshToken", refreshToken, {
@@ -79,7 +79,15 @@ export const loginUser = async (req, res) => {
             maxAge: 30 * 24 * 60 * 60 * 1000
         });
 
-        res.status(200).json({ msg: "Login successful", accessToken, refreshToken });
+        const userData = {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            profileImage: user.profileImage,
+        };
+
+        res.status(200).json({ msg: "Login successful", user, userData });
     }
     catch (err) {
         res.status(400).json({ msg: "Login failed", error: err.message });
@@ -103,7 +111,7 @@ export const getUser = async (req, res) => {
         if (!user) {
             return res.status(404).json({ msg: "User not found" });
         }
-        
+
         res.status(200).json({ user });
     }
     catch (err) {
@@ -121,6 +129,12 @@ export const logoutUser = async (req, res) => {
         user.refreshToken = null;
         await user.save();
         res.clearCookie("accessToken", {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax"
+        });
+
+        res.clearCookie("refreshToken", {
             httpOnly: true,
             secure: false,
             sameSite: "lax"

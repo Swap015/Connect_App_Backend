@@ -21,7 +21,6 @@ export const initSocket = (server) => {
             io.emit("updateOnlineUsers", Array.from(onlineUsers.keys()));
         });
 
-
         socket.on("typing", ({ conversationId, senderId, receiverId }) => {
             const receiverSocketId = onlineUsers.get(String(receiverId));
             if (receiverSocketId) {

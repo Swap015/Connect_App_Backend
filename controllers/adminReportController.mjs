@@ -6,12 +6,12 @@ import Comment from "../models/commentModel.js";
 
 export const getAdminReports = async (req, res) => {
     try {
-        // Users
+
         const totalUsers = await User.countDocuments();
         const recruitersCount = await User.countDocuments({ role: "recruiter" });
         const candidatesCount = await User.countDocuments({ role: "candidate" });
 
-        // Jobs
+        
         const totalJobs = await Job.countDocuments();
         const activeJobs = await Job.countDocuments({ isJobActive: true });
         const inactiveJobs = await Job.countDocuments({ isJobActive: false });
@@ -20,17 +20,15 @@ export const getAdminReports = async (req, res) => {
             { $group: { _id: "$jobType", count: { $sum: 1 } } }
         ]);
 
-        // Applications
         const totalApplications = await Application.countDocuments();
         const applicationsPerJob = await Application.aggregate([
             { $group: { _id: "$jobId", count: { $sum: 1 } } }
         ]);
 
-        // Posts & Engagement
+   
         const totalPosts = await Post.countDocuments();
         const totalComments = await Comment.countDocuments();
 
-        // Return analytics
         res.status(200).json({
             users: {
                 totalUsers,

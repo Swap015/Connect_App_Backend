@@ -34,17 +34,16 @@ export const markOneAsRead = async (req, res) => {
             { $set: { read: true } },
             { new: true }
         );
-        console.log("Logged-in user:", req.user.userId);
 
-        if (!notification) {
-            return res.status(404).json({ msg: "Notification not found" });
-        }
+        if (!notification) return res.status(404).json({ msg: "Notification not found" });
 
         res.status(200).json({ msg: "Notification marked as read", notification });
+
     } catch (err) {
         res.status(500).json({ msg: "Failed to update notification", error: err.message });
     }
 };
+
 
 export const deleteNotification = async (req, res) => {
     try {
@@ -64,3 +63,4 @@ export const deleteNotification = async (req, res) => {
         res.status(500).json({ msg: "Failed to delete notification", error: err.message });
     }
 };
+

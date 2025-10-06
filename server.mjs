@@ -34,7 +34,7 @@ connectDB();
 
 
 //Socket io
-const server = createServer(app);  
+const server = createServer(app);
 
 initSocket(server);
 
@@ -51,6 +51,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/profilePic', profilePicRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/admin", AdminRoutes);
+
 
 
 

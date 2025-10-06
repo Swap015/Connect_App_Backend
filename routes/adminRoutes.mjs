@@ -14,6 +14,7 @@ import {
 } from "../controllers/AdminController.mjs";
 import { getAdminReports } from "../controllers/adminReportController.mjs";
 
+
 const router = express.Router();
 
 // user routes
@@ -35,6 +36,7 @@ router.delete("/:jobId", verifyToken, verifyAdmin, adminDeleteJob);
 
 // report routes
 router.get("/reports", verifyToken, verifyAdmin, getAdminReports);
+
 
 
 export default router;

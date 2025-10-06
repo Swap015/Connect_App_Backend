@@ -1,8 +1,9 @@
 import express from 'express';
 import verifyToken from '../middlewares/authMiddleware.mjs';
-import {verifyRecruiter} from '../middlewares/isRecruiter.mjs';
+import { verifyRecruiter } from '../middlewares/isRecruiter.mjs';
 import { applyForJob, myApplications, deleteJobApplication, editJobApplication, viewApplicants, changeApplicationStatus } from '../controllers/jobAppliController.mjs';
 import { uploadResume } from '../middlewares/uploadMiddleware.mjs';
+import { getRecruiterDashboard } from '../controllers/recruiterDashController.mjs';
 
 
 const router = express.Router();
@@ -38,10 +39,13 @@ router.get("/getApplicants/:jobId",
     verifyToken, verifyRecruiter,
     viewApplicants);
 
-router.put("/updateStatus/:applicationId",
+router.put("/updateStatus/:jobId/:applicationId",
     verifyToken, verifyRecruiter,
     changeApplicationStatus);
 
+router.get("/dashboard", verifyToken,
+    verifyRecruiter,
+    getRecruiterDashboard);
 
 
 export default router;

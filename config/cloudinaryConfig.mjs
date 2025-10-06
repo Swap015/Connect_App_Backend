@@ -41,21 +41,13 @@ export const postStorage = new CloudinaryStorage({
 
 export const resumeStorage = new CloudinaryStorage({
     cloudinary,
-    params: async (req, file) => {
-        const ext = file.originalname.split(".").pop();   
-        const baseName = file.originalname
-            .split(".")
-            .slice(0, -1)
-            .join("."); // remove extension safely
-
-        return {
-            folder: "connect/resumes",
-            allowed_formats: ["pdf", "doc", "docx"],
-            resource_type: "raw",
-            public_id: `${Date.now()}-${baseName}.${ext}`,
-        };
+    params: {
+        folder: "connect/resumes",
+        allowed_formats: ["pdf"],  
+        resource_type: "auto",     
     },
 });
+
 
 // CHAT (attachments)
 export const chatStorage = new CloudinaryStorage({

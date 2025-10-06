@@ -5,7 +5,6 @@ import { extractPublicId } from "../utils/extractPublicId.mjs";
 import Job from "../models/jobModel.js";
 
 
-
 export const adminGetAllUsers = async (req, res) => {
     try {
         const users = await User.find().select("-password -refreshToken");
@@ -76,8 +75,7 @@ export const adminBanUser = async (req, res) => {
     }
 };
 
-
-//POSTSS
+//POSTS
 
 export const adminGetAllPosts = async (req, res) => {
     try {
@@ -113,9 +111,7 @@ export const adminDeletePost = async (req, res) => {
     }
 };
 
-
-//jobss
-
+//jobs
 
 export const adminGetAllJobs = async (req, res) => {
     try {

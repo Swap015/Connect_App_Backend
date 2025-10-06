@@ -6,28 +6,22 @@ export const visitProfile = async (req, res) => {
         const visitorId = req.user.userId;
         const profileToVisitId = req.params.id;
 
-        if (visitorId === profileToVisitId) {
-            return res.status(400).json({ msg: "This is your profile & therefore it will not be counted" });
-        }
 
         const profileToVisit = await User.findById(profileToVisitId);
         if (!profileToVisit) {
             return res.status(404).json({ msg: "Profile not found" });
         }
 
-        // Check if already visited
         const alreadyVisited = profileToVisit.profileVisits.some(
             (visit) => visit.user.toString() === visitorId
         );
 
         if (!alreadyVisited) {
-            // Add visit
             profileToVisit.profileVisits.push({
                 user: visitorId,
                 visitedAt: new Date()
             });
 
-            // Create notification
             await Notification.create({
                 type: "profileVisit",
                 sender: visitorId,
@@ -46,7 +40,7 @@ export const visitProfile = async (req, res) => {
 
 export const getProfileVisits = async (req, res) => {
     try {
-        const userId = req.user.userId; // logged-in user
+        const userId = req.user.userId; 
 
         const user = await User.findById(userId)
             .populate("profileVisits.user", "name email profileImage headline");
