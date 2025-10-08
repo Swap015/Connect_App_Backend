@@ -7,7 +7,7 @@ import User from "../models/userModel.js";
         if (!user) {
             return res.status(404).json({ msg: "User not found" });
         }
-
+        
         if (user.role !== "admin") {
             return res.status(403).json({ msg: "Access denied, Admins only" });
         }
