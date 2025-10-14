@@ -24,8 +24,16 @@ const PORT = process.env.PORT || 7000;
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
 app.use(express.json());
+
 app.use(cors({
-    origin: FRONTEND_URL,
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true); 
+        if (FRONTEND_URL.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"), false);
+        }
+    },
     credentials: true
 }));
 
