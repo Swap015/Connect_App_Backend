@@ -1,6 +1,13 @@
 
+// export function extractPublicId(url) {
+//     const regex = /\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+$/;
+//     const match = url.match(regex);
+//     return match ? match[1] : null; 
+// }
+
+
 export function extractPublicId(url) {
-    const regex = /\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+$/;
+    const regex = /\/upload\/(?:v\d+\/)?(.+?)(?:\.[a-zA-Z0-9]+)?$/;
     const match = url.match(regex);
-    return match ? match[1] : null; 
+    return match ? match[1] : null;
 }

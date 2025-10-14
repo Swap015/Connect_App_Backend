@@ -36,15 +36,19 @@ export const postStorage = new CloudinaryStorage({
     },
 });
 
-
 //RESUME
 
 export const resumeStorage = new CloudinaryStorage({
     cloudinary,
-    params: {
-        folder: "connect/resumes",
-        allowed_formats: ["pdf"],  
-        resource_type: "auto",     
+    params: async (req, file) => {
+        return {
+            folder: "connect/resumes",
+            resource_type: "raw", 
+            format: "pdf",          
+            public_id: file.originalname.split(".")[0],
+            type: "authenticated",
+            sign_url: true, 
+        };
     },
 });
 

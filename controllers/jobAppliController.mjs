@@ -43,7 +43,7 @@ export const applyForJob = async (req, res) => {
         const application = new Application({
             job: jobId,
             applicant: userId,
-            resumeUrl: req.file.path || req.file.secure_url,
+            resumeUrl: req.file?.path || req.file?.secure_url,
             coverLetter
         });
         await application.save();
@@ -72,7 +72,7 @@ export const myApplications = async (req, res) => {
     try {
         const userId = req.user.userId;
         const applications = await Application.find({ applicant: userId })
-            .populate("job", "title companyName location")
+            .populate("job", "title companyName location resumeUrl ")
             .sort({ createdAt: -1 });
 
         res.status(200).json({ applications });
@@ -182,7 +182,7 @@ export const viewApplicants = async (req, res) => {
         if (status) query.status = status;
 
         let applications = await Application.find(query)
-            .populate("applicant", "name email location skills")
+            .populate("applicant", "name email location skills resumeUrl coverLetter")
             .sort({ createdAt: -1 });
 
         const filtered = applications.filter(app => {
@@ -210,7 +210,6 @@ export const viewApplicants = async (req, res) => {
 
             return true;
         });
-
 
         return res.status(200).json({ applicants: filtered });
     } catch (err) {
