@@ -67,15 +67,15 @@ export const loginUser = async (req, res) => {
 
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
-            secure: false,
-            sameSite: "lax",
+            secure: true,
+            sameSite: "none",
             maxAge: 2 * 60 * 60 * 1000
         })
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: false,
-            sameSite: "lax",
+            secure: true,
+            sameSite: "none",
             maxAge: 30 * 24 * 60 * 60 * 1000
         });
 
@@ -130,14 +130,14 @@ export const logoutUser = async (req, res) => {
         await user.save();
         res.clearCookie("accessToken", {
             httpOnly: true,
-            secure: false,
-            sameSite: "lax"
+            secure: true,
+            sameSite: "none"
         });
 
         res.clearCookie("refreshToken", {
             httpOnly: true,
-            secure: false,
-            sameSite: "lax"
+            secure: true,
+            sameSite: "none"
         });
         res.status(200).json({ msg: "Logged Out" });
     }
@@ -223,7 +223,7 @@ export const updateUserProfile = async (req, res) => {
 // mention by name
 export const mentionSearch = async (req, res) => {
     try {
-        const { q } = req.query; // frontend sends ?q=swap
+        const { q } = req.query; 
         if (!q) return res.status(400).json({ msg: "Query is required" });
 
         const users = await User.find({
