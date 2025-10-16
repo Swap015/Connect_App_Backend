@@ -8,21 +8,14 @@ export const getRecruiterDashboard = async (req, res) => {
 
         const totalJobs = await Job.countDocuments({ postedBy: recruiterId });
 
+        const jobIds = await Job.find({ postedBy: recruiterId }).distinct("_id");
+
         const totalApplicants = await Application.countDocuments({
-            job: { $in: await Job.find({ postedBy: recruiterId }).distinct("_id") }
+            job: { $in: jobIds }
         });
 
         const statusCounts = await Application.aggregate([
-            {
-                $lookup: {
-                    from: "jobs",
-                    localField: "job",
-                    foreignField: "_id",
-                    as: "jobData"
-                }
-            },
-            { $unwind: "$jobData" },
-            { $match: { "jobData.postedBy": recruiterId } },
+            { $match: { job: { $in: jobIds } } },
             {
                 $group: {
                     _id: "$status",
@@ -30,14 +23,15 @@ export const getRecruiterDashboard = async (req, res) => {
                 }
             }
         ]);
+      
 
-        // Format status counts
         const statusSummary = {
             Pending: 0,
             Shortlisted: 0,
             Rejected: 0,
             Hired: 0,
         };
+
         statusCounts.forEach(item => {
             statusSummary[item._id] = item.count;
         });
@@ -45,7 +39,7 @@ export const getRecruiterDashboard = async (req, res) => {
         res.status(200).json({
             totalJobs,
             totalApplicants,
-            statusSummary,
+            statusSummary
         });
 
     } catch (err) {
