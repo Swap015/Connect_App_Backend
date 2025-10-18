@@ -71,7 +71,7 @@ export const deleteProfilePic = async (req, res) => {
             const publicId = extractPublicId(user.profileImage);
             if (publicId) await cloudinary.uploader.destroy(publicId);
         }
-        //assign default profile pic
+        //default profile pic
         const DEFAULT_PROFILE_PIC = defaultProfilePics[user.gender.toLowerCase()];
         user.profileImage = DEFAULT_PROFILE_PIC;
         await user.save();

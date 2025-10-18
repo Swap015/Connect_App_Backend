@@ -80,7 +80,6 @@ export const sendMessage = async (req, res) => {
 
         const receiverId = convo.participants.find(p => p.toString() !== senderId);
 
-        // build attachments if any files uploaded
         let attachments = [];
         if (req.files && req.files.length > 0) {
             attachments = req.files.map((file) => ({

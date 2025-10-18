@@ -80,7 +80,6 @@ export const deleteComment = async (req, res) => {
             await Post.findByIdAndUpdate(postId, { $pull: { comments: commentId } });
         }
 
-        // Delete comment 
         await Comment.deleteMany({ $or: [{ _id: commentId }, { parentComment: commentId }] });
 
         res.status(200).json({ msg: "Comment deleted" });

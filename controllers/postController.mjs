@@ -191,7 +191,7 @@ export const deletePost = async (req, res) => {
 };
 
 
-//get posts on home page
+//get posts 
 export const getFeedPosts = async (req, res) => {
     try {
         const me = await User.findById(req.user.userId);
@@ -216,7 +216,7 @@ export const getFeedPosts = async (req, res) => {
 };
 
 
-//get posts which are liked by user 
+//get posts liked by user 
 
 export const getLikedPosts = async (req, res) => {
     try {

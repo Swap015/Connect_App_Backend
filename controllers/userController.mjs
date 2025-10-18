@@ -2,9 +2,12 @@ import User from '../models/userModel.js';
 import bcrypt from 'bcrypt';
 import { generateAccessToken, generateRefreshToken }
     from '../utils/tokenUtil.mjs';
+import ms from "ms";
 import defaultProfilePics from "../config/defaultprofilePics.js";
 
 const isProduction = process.env.NODE_ENV === "production";
+const ACCESS_EXPIRY = process.env.ACCESS_EXPIRY;
+const REFRESH_EXPIRY = process.env.REFRESH_EXPIRY;
 
 export const registerUser = async (req, res) => {
     try {
@@ -71,14 +74,14 @@ export const loginUser = async (req, res) => {
             httpOnly: true,
             secure: isProduction,
             sameSite: isProduction ? "none" : "lax",
-            maxAge: 2 * 60 * 60 * 1000
+            maxAge: ms(ACCESS_EXPIRY)
         })
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: isProduction,
             sameSite: isProduction ? "none" : "lax",
-            maxAge: 30 * 24 * 60 * 60 * 1000
+            maxAge: ms(REFRESH_EXPIRY)
         });
 
         const userData = {
@@ -138,7 +141,7 @@ export const logoutUser = async (req, res) => {
 
         res.clearCookie("refreshToken", {
             httpOnly: true,
-            secure: isProduction ,
+            secure: isProduction,
             sameSite: isProduction ? "none" : "lax"
         });
         res.status(200).json({ msg: "Logged Out" });
@@ -225,7 +228,7 @@ export const updateUserProfile = async (req, res) => {
 // mention by name
 export const mentionSearch = async (req, res) => {
     try {
-        const { q } = req.query; 
+        const { q } = req.query;
         if (!q) return res.status(400).json({ msg: "Query is required" });
 
         const users = await User.find({

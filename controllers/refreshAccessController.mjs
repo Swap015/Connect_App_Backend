@@ -1,9 +1,10 @@
 import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-dotenv.config();
+import ms from "ms";
 import { generateAccessToken } from "../utils/tokenUtil.mjs";
 
+const isProduction = process.env.NODE_ENV === "production";
+const ACCESS_EXPIRY = process.env.ACCESS_EXPIRY;
 
 export const refreshAccessToken = async (req, res) => {
     try {
@@ -24,9 +25,9 @@ export const refreshAccessToken = async (req, res) => {
         const newAccessToken = generateAccessToken(user._id);
         res.cookie("accessToken", newAccessToken, {
             httpOnly: true,
-            secure: false,
-            sameSite: "lax",
-            maxAge: 15 * 60 * 1000,
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
+            maxAge: ms(ACCESS_EXPIRY),
         });
 
         res.status(200).json({ msg: "Access token refreshed" });

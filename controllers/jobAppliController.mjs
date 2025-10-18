@@ -135,10 +135,10 @@ export const editJobApplication = async (req, res) => {
         if (coverLetter !== undefined) {
             application.coverLetter = coverLetter;
         }
-        // If a new resume is uploaded
+        //  new resume 
         if (req.file && req.file.path) {
 
-            // Delete old resume from Cloudinary
+            // Delete old resume 
             if (application.resumeUrl) {
                 const publicId = extractPublicId(application.resumeUrl);
                 if (publicId) {

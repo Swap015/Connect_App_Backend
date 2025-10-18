@@ -54,11 +54,9 @@ export const acceptConnectionRequest = async (req, res) => {
             return res.status(400).json({ msg: "You are already connected with this user" });
         }
 
-        // remove request after accepting
         me.connectionRequests = me.connectionRequests.filter(req => req.user.toString() !== senderId);
         sender.sentRequests = sender.sentRequests.filter(id => id.toString() !== myId);
 
-        //add to connections array
         me.connections.push(senderId);
         sender.connections.push(myId);
 
