@@ -5,12 +5,12 @@ import {
     adminGetAllUsers,
     adminDeleteUser,
     adminChangeUserRole,
-    adminBanUser,
     adminGetAllPosts,
     adminDeletePost,
     adminGetAllJobs,
     adminToggleJobStatus,
-    adminDeleteJob
+    adminDeleteJob,
+    verifyRecruiter
 } from "../controllers/AdminController.mjs";
 import { getAdminReports } from "../controllers/adminReportController.mjs";
 
@@ -21,7 +21,7 @@ const router = express.Router();
 router.get("/getusers", verifyToken, verifyAdmin, adminGetAllUsers);
 router.delete("/users/:userId", verifyToken, verifyAdmin, adminDeleteUser);
 router.patch("/users/:userId/role", verifyToken, verifyAdmin, adminChangeUserRole);
-router.patch("/users/:userId/suspend", verifyToken, verifyAdmin, adminBanUser);
+
 
 
 // post routes
@@ -37,6 +37,8 @@ router.delete("/:jobId", verifyToken, verifyAdmin, adminDeleteJob);
 // report routes
 router.get("/reports", verifyToken, verifyAdmin, getAdminReports);
 
+//verify recruiter
+router.patch('/verifyRecruiter/:id', verifyToken, verifyAdmin, verifyRecruiter);
 
 
 export default router;

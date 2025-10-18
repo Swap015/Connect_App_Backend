@@ -54,26 +54,29 @@ export const adminChangeUserRole = async (req, res) => {
     }
 };
 
-// ban user
-export const adminBanUser = async (req, res) => {
+// verify recruiter
+export const verifyRecruiter = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const recruiterId = req.params.id;
 
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { isVerified: false },
-            { new: true }
-        ).select("-password -refreshToken");
-
-        if (!updatedUser) {
-            return res.status(404).json({ msg: "User not found" });
+        const recruiter = await User.findById(recruiterId);
+        if (!recruiter) {
+            return res.status(404).json({ msg: "Recruiter not found" });
         }
 
-        res.status(200).json({ msg: "User suspended", user: updatedUser });
+        if (recruiter.role !== "recruiter") {
+            return res.status(400).json({ msg: "User is not a recruiter" });
+        }
+
+        recruiter.isVerified = !recruiter.isVerified;
+        await recruiter.save();
+
+        res.status(200).json({ msg: "Recruiter Verified", isVerified: recruiter.isVerified });
     } catch (err) {
-        res.status(400).json({ msg: "Failed to suspend user" });
+        res.status(500).json({ msg: "Failed to verify recruiter", error: err.message });
     }
 };
+
 
 //POSTS
 

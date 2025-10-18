@@ -110,6 +110,18 @@ export const getAllJobs = async (req, res) => {
     }
 };
 
+export const getRecruiterJobs = async (req, res) => {
+    try {
+        const recruiterId = req.user.userId;
+        const jobs = await Job.find({ postedBy: recruiterId }) 
+            .populate("postedBy", "name email")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({ jobs });
+    } catch (err) {
+        res.status(500).json({ msg: "Failed to fetch your jobs", error: err.message });
+    }
+};
 
 export const getJobById = async (req, res) => {
     try {

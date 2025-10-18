@@ -51,7 +51,7 @@ const userSchema = new mongoose.Schema({
         SSC: { type: String },
         HSC: { type: String },
         diploma: { type: String },
-        degree: { type: String }
+        Graduation: { type: String }
     }],
     skills: [{
         type: String
