@@ -43,9 +43,8 @@ export const initSocket = (server) => {
             if (receiverSocketId) {
                 io.to(receiverSocketId).emit("getMessage", message);
                 console.log("📩 Message sent to:", receiverSocketId);
-            } else {
-                console.log("❌ Receiver not online:", receiverId);
             }
+           
         });
 
         socket.on("disconnect", () => {
