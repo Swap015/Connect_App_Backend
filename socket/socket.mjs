@@ -37,6 +37,16 @@ export const initSocket = (server) => {
                 io.to(receiverSocketId).emit("stopTyping", { conversationId, senderId });
             }
         });
+        
+        socket.on("sendMessage", ({ receiverId, message }) => {
+            const receiverSocketId = onlineUsers.get(String(receiverId));
+            if (receiverSocketId) {
+                io.to(receiverSocketId).emit("getMessage", message);
+                console.log("📩 Message sent to:", receiverSocketId);
+            } else {
+                console.log("❌ Receiver not online:", receiverId);
+            }
+        });
 
         socket.on("disconnect", () => {
             console.log("❌ Socket disconnected:", socket.id);
