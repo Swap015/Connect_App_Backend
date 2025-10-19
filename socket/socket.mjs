@@ -4,13 +4,13 @@ import dotenv from "dotenv";
 dotenv.config();
 
 let io;
-const FRONTEND_URL = process.env.FRONTEND_URL;
+const VITE_SOCKET_ORIGIN = process.env.VITE_SOCKET_ORIGIN;
 export const onlineUsers = new Map();
 
 export const initSocket = (server) => {
     io = new Server(server, {
         cors: {
-            origin: FRONTEND_URL,
+            origin: VITE_SOCKET_ORIGIN,
             credentials: true,
         },
     });
