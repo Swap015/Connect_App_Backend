@@ -12,6 +12,7 @@ export const initSocket = (server) => {
         cors: {
             origin: VITE_SOCKET_ORIGIN,
             credentials: true,
+            transports: ["websocket", "polling"]
         },
     });
 
@@ -30,7 +31,7 @@ export const initSocket = (server) => {
         });
 
         socket.on("typing", ({ conversationId, senderId, receiverId }) => {
-            const receiverSockets = onlineUsers.get(String(receiverId) || new Set());
+            const receiverSockets = onlineUsers.get(String(receiverId)) || new Set();
             receiverSockets.forEach(sockId => {
                 io.to(sockId).emit("typing", { conversationId, senderId });
             });
