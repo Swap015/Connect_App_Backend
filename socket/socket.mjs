@@ -12,8 +12,8 @@ export const initSocket = (server) => {
         cors: {
             origin: VITE_SOCKET_ORIGIN,
             credentials: true,
-            transports: ["websocket", "polling"]
         },
+        transports: ["websocket", "polling"]
     });
 
     io.on("connection", (socket) => {
