@@ -101,14 +101,40 @@ export const editJob = async (req, res) => {
 
 export const getAllJobs = async (req, res) => {
     try {
-        const jobs = await Job.find({ isJobActive: true })
+        const { jobType, location, minSalary, maxSalary, skills } = req.query;
+
+        let filter = { isJobActive: true };
+
+        if (jobType) {
+            filter.jobType = jobType;
+        }
+
+        if (location) {
+
+            filter.location = { $regex: location, $options: "i" };
+        }
+
+        if (skills) {
+            const skillsArray = skills.split(",").map(skill => skill.trim());
+
+            filter.skills = { $all: skillsArray };
+        }
+
+        if (minSalary || maxSalary) {
+            filter["salaryRange.min"] = { $gte: Number(minSalary) || 0 };
+            filter["salaryRange.max"] = { $lte: Number(maxSalary) || Infinity };
+        }
+
+        const jobs = await Job.find(filter)
             .populate("postedBy", "name email")
             .sort({ createdAt: -1 });
-        res.status(200).json({ jobs });
+
+        res.status(200).json({ count: jobs.length, jobs });
     } catch (err) {
         res.status(500).json({ msg: "Failed to fetch jobs", error: err.message });
     }
 };
+
 
 export const getRecruiterJobs = async (req, res) => {
     try {
@@ -151,3 +177,4 @@ export const deleteJob = async (req, res) => {
         res.status(500).json({ msg: "Failed to delete job", error: err.message });
     }
 };
+
