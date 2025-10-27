@@ -18,8 +18,16 @@ export const registerUser = async (req, res) => {
             return res.status(400).json({ msg: "User already exists" });
         }
         if (!name || !email || !password || !role || !gender) {
-            return res.status(400).json({ msg: "All fields are required" });
+            return res.status(400).json({ msg: "All the fields are required" });
         }
+
+        if (password.length < 6) {
+            return res.status(400).json({ msg: "Password must be at least 6 characters long" });
+        }
+        if (!/^\S+@\S+\.\S+$/.test(email)) {
+            return res.status(400).json({ msg: "Invalid email format" });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
         //Set default profile pic
@@ -52,6 +60,14 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
     const { email, password, role } = req.body;
     try {
+        if (!email || !password || !role) {
+            return res.status(400).json({ msg: "All fields are required" });
+        }
+
+        if (!/^\S+@\S+\.\S+$/.test(email)) {
+            return res.status(400).json({ msg: "Invalid email format" });
+        }
+
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ msg: "User not found" });

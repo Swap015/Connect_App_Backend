@@ -124,14 +124,6 @@ export const sendMessage = async (req, res) => {
             });
         });
 
-        const senderSockets = onlineUsers.get(senderId.toString()) || new Set();
-        senderSockets.forEach(sockId => {
-            io.to(sockId).emit("getMessage", {
-                ...message.toObject(),
-                conversationId,
-            });
-        });
-
 
         res.status(201).json({ message });
     } catch (err) {
